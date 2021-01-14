@@ -1,0 +1,1 @@
+: MATRIX_10 0 11 0 DO 11 0 CR DO I J * . LOOP LOOP ;
