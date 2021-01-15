@@ -127,7 +127,7 @@ dup * ALLOCATE drop ;
 dup rot * 0 DO
     dup I swap mod 0= IF
         CR
-    THEN over I + c@ 4 .R
+    THEN over I + c@ 3 .R
 LOOP ;
 
 : ARRAY-W-@ { ARRAY-LOCATION X Y WIDTH -- }
@@ -498,7 +498,7 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
 
 { ARR-LOCATION -- }
 { works }
-: ARRAY-TO-BMP-INV cr ." starting inv bmp " cr
+: ARRAY-TO-BMP-INV cr ." starting inv array to bmp " cr
   bmp-y-size @ 0 DO                                         { LOOP OVER THE ROWS }
     bmp-x-size @ 0 DO                                       { LOOP OVER THE COLUMNS}
       bmp-address @ HEADER-OFFSET + I 3 * J bmp-x-size @ 3 * * + +
@@ -509,7 +509,7 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
         ELSE 
           WRITE-WHITE                                       { make pixel black }
         THEN drop
-    LOOP cr
+    LOOP
   LOOP ;
 
 { ARR-LOCATION -- }
@@ -517,7 +517,7 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
 : SHOW-ARR-INV CR 
   bmp-y-size @ 0 DO             { LOOP OVER THE ROWS }
     bmp-x-size @ 0 DO           { LOOP OVER THE COLUMNS}
-      dup I + bmp-y-size @ J 1 + - bmp-x-size @ * + c@ 4 .R
+      dup I + bmp-y-size @ J 1 + - bmp-x-size @ * + c@ 2 .R
     LOOP 
     CR
   LOOP ;
@@ -546,6 +546,7 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
     \ bmp-window-handle @ DestroyWindow drop  { Kill of display window                       }
 
 { ARRAY-LOCATION -- }
+{ broken }
 : SHOW-ARRAY-Y-X-INV
 bmp-x-size bmp-y-size * 0 DO
     dup bmp-x-size bmp-y-size * I - bmp-y-size / bmp-x-size * i bmp-x-size mod + +
