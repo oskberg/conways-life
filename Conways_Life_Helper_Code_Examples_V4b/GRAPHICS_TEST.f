@@ -127,7 +127,7 @@ dup * ALLOCATE drop ;
 dup rot * 0 DO
     dup I swap mod 0= IF
         CR
-    THEN over I + c@ .
+    THEN over I + c@ 4 .R
 LOOP ;
 
 : ARRAY-W-@ { ARRAY-LOCATION X Y WIDTH -- }
@@ -482,15 +482,7 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
   1 + 255 over c!
   1 + 255 over c! ;
 
-  \  paint-pixels       { Demo paint individual pixels           }
-   54 CONSTANT HEADER-OFFSET
-   16 bmp-x-size !    { Create a blank 16x16 .bmp in memory    }
-   16 bmp-y-size !
-   Setup-Test-Memory  
 
-   16 CREATE-N-BY-N CONSTANT RND-ARR
-   RND-ARR 16 16 * FILL-RND
-   RND-ARR 16 16 SHOW-ARRAY-Y-X
 
 { ARR-LOCATION SIZE -- }
 : ARRAY-TO-BMP
@@ -503,23 +495,57 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
     THEN drop
   LOOP ;
 
-    RND-ARR 16 16 * ARRAY-TO-BMP
+{ ARR-LOCATION SIZE -- }
+: ARRAY-TO-BMP-INV
+  0 DO
+    bmp-address @ HEADER-OFFSET + I 3 * + { pixel i in bmp image }
+    over I + c@ { value at i in array }
+    1 = IF { if value at i is 1 }
+      WRITE-BLACK { make pixel black }
+    ELSE WRITE-WHITE
+    THEN drop
+  LOOP ;
 
-    cr ." Starting single pixel paint test " cr
-    New-bmp-Window-stretch
-    bmp-window-handle !
+{ ARR-LOCATION -- }
+{ WORKS }
+: SHOW-ARR-INV CR 
+  bmp-y-size @ 0 DO             { LOOP OVER THE ROWS }
+    bmp-x-size @ 0 DO           { LOOP OVER THE COLUMNS}
+      dup I + bmp-y-size @ J 1 + - bmp-x-size @ * + c@ 4 .R
+    LOOP 
+    CR
+  LOOP ;
 
-    bmp-address @ bmp-to-screen-stretch
+    \  paint-pixels       { Demo paint individual pixels           }
+   54 CONSTANT HEADER-OFFSET
+   16 bmp-x-size !    { Create a blank 16x16 .bmp in memory    }
+   16 bmp-y-size !
+   Setup-Test-Memory  
 
-    10000 ms
-    cr ." Ending single pixel paint test " 
-    bmp-window-handle @ DestroyWindow drop  { Kill of display window                       }
+   16 CREATE-N-BY-N CONSTANT RND-ARR
+   RND-ARR 16 16 * FILL-RND
+   RND-ARR 16 16 SHOW-ARRAY-Y-X
 
-: SHOW-ARRAY-Y-X
-dup rot * 0 DO
-    dup I swap mod 0= IF
+    RND-ARR 16 16 * ARRAY-TO-BMP 
+
+
+    \ cr ." Starting single pixel paint test " cr
+    \ New-bmp-Window-stretch
+    \ bmp-window-handle !
+
+    \ bmp-address @ bmp-to-screen-stretch
+
+    \ 10000 ms
+    \ cr ." Ending single pixel paint test " 
+    \ bmp-window-handle @ DestroyWindow drop  { Kill of display window                       }
+
+{ ARRAY-LOCATION -- }
+: SHOW-ARRAY-Y-X-INV
+bmp-x-size bmp-y-size * 0 DO
+    dup bmp-x-size bmp-y-size * I - bmp-y-size / bmp-x-size * i bmp-x-size mod + +
+    i bmp-x-size mod 0= IF
         CR
-    THEN over I + c@ .
+    THEN c@ .
 LOOP ;
 
     \ bmp-address @ HEADER-OFFSET + 16 16 3 * * 255 FILL
