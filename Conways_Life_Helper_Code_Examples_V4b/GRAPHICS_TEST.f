@@ -498,13 +498,13 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
 
 { ARR-LOCATION -- }
 { works }
-: ARRAY-TO-BMP-INV cr ." starting inv array to bmp " cr
+: ARRAY-TO-BMP-INV
   bmp-y-size @ 0 DO                                         { LOOP OVER THE ROWS }
     bmp-x-size @ 0 DO                                       { LOOP OVER THE COLUMNS}
       bmp-address @ HEADER-OFFSET + I 3 * J bmp-x-size @ 3 * * + +
       over I + bmp-y-size @ J 1 + - bmp-x-size @ * + c@     { get value from array }
       \ dup .                                               { uncomment to print out array }
-        1 = IF                                              { if value at i is 1 }
+        1 = IF                                               { if value at i is 1 }
           WRITE-BLACK                                       { make pixel black }
         ELSE 
           WRITE-WHITE                                       { make pixel black }
@@ -524,22 +524,51 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
 
     \  paint-pixels       { Demo paint individual pixels           }
 
-   16 bmp-x-size !    { Create a blank 16x16 .bmp in memory    }
-   16 bmp-y-size !
+   100 bmp-x-size !    { Create a blank 16x16 .bmp in memory    }
+   100 bmp-y-size !
    Setup-Test-Memory  
 
-   16 CREATE-N-BY-N CONSTANT RND-ARR
-   RND-ARR 16 16 * FILL-RND
-   RND-ARR 16 16 SHOW-ARRAY-Y-X
+  \  16 CREATE-N-BY-N CONSTANT RND-ARR
+  bmp-x-size @ bmp-y-size @ CREATE-X-BY-Y CONSTANT RND-ARR
+  RND-ARR bmp-x-size @ bmp-y-size @ * FILL-RND
 
-   RND-ARR ARRAY-TO-BMP-INV
+  RND-ARR ARRAY-TO-BMP-INV
 
-
-    cr ." Starting single pixel paint test " cr
-    New-bmp-Window-stretch
-    bmp-window-handle !
-
+: RND-WINDOW 
+  cr cr ." Creating random window " cr cr
+  New-bmp-Window-stretch
+  bmp-window-handle !
+  BEGIN
+    RND-ARR bmp-x-size @ bmp-y-size @ * FILL-RND
+    RND-ARR ARRAY-TO-BMP-INV
     bmp-address @ bmp-to-screen-stretch
+    100 ms
+    KEY?
+  UNTIL
+
+  ." ENDING RANDOM WINDOW "
+;
+  rnd-window
+    \ cr ." Starting single pixel paint test " cr
+    \ New-bmp-Window-stretch
+    \ bmp-window-handle !
+
+    \ bmp-address @ bmp-to-screen-stretch
+
+  \   : go-stretch                          { Draw bmp to screen at variable pixel size       }
+  \ cr ." Starting looped stretch to window test " 
+  \ cr cr
+  \ New-bmp-Window-stretch              { Create new "stretch" window                     }
+  \ bmp-window-handle !                 { Store window handle                             }
+  \ Begin	                              { Begin update / display loop                     }
+  \ bmp-address @ Random-bmp-Blue       { Add random pixels to .bmp in memory             }
+  \ bmp-address @ bmp-to-screen-stretch { Stretch .bmp to display window                  }
+  \ 100 ms                              { Delay for viewing ease, reduce for higher speed }
+  \ key?                                { Break test loop on key press                    }
+  \ until 
+  \ cr ." Ending looped stretch to window test " 
+  \ cr cr
+  \ ;
 
     \ 10000 ms
     \ cr ." Ending single pixel paint test " 
