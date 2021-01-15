@@ -475,6 +475,8 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
   1 + 0 over c!
   1 + 0 over c! ;
 
+: TEST-WORD 5 . ;
+TEST-WORD
   \  8 bmp-x-size ! 
   \  8 bmp-y-size !
   \  Setup-Test-Memory  { Create a blank 8x8 .bmp in memory      } 
@@ -485,22 +487,26 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
    16 bmp-y-size !
    Setup-Test-Memory  
 
+   16 CREATE-N-BY-N CONSTANT RND-ARR
+   RND-ARR 16 16 * FILL-RND
+   RND-ARR 16 16 SHOW-ARRAY-Y-X
+
   \  54 offset !
 
-    cr ." Starting single pixel paint test " cr
-    New-bmp-Window-stretch
-    bmp-window-handle !
+    \ cr ." Starting single pixel paint test " cr
+    \ New-bmp-Window-stretch
+    \ bmp-window-handle !
 
-    bmp-address @ HEADER-OFFSET + 16 16 3 * * 255 FILL
+    \ bmp-address @ HEADER-OFFSET + 16 16 3 * * 255 FILL
     
-    bmp-address @ HEADER-OFFSET 3 + + WRITE-BLACK
+    \ bmp-address @ HEADER-OFFSET 3 + + WRITE-BLACK
 
-    bmp-address @ bmp-to-screen-stretch
+    \ bmp-address @ bmp-to-screen-stretch
     
-    3000 ms
-    cr ." Ending single pixel paint test " 
-    bmp-window-handle @ DestroyWindow drop  { Kill of display window                       }
-    cr cr
+    \ 3000 ms
+    \ cr ." Ending single pixel paint test " 
+    \ bmp-window-handle @ DestroyWindow drop  { Kill of display window                       }
+    \ cr cr
 
 
 
