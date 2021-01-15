@@ -483,6 +483,7 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
   1 + 255 over c! ;
 
 
+   54 CONSTANT HEADER-OFFSET
 
 { ARR-LOCATION SIZE -- }
 : ARRAY-TO-BMP
@@ -495,15 +496,20 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
     THEN drop
   LOOP ;
 
-{ ARR-LOCATION SIZE -- }
-: ARRAY-TO-BMP-INV
-  0 DO
-    bmp-address @ HEADER-OFFSET + I 3 * + { pixel i in bmp image }
-    over I + c@ { value at i in array }
-    1 = IF { if value at i is 1 }
-      WRITE-BLACK { make pixel black }
-    ELSE WRITE-WHITE
-    THEN drop
+{ ARR-LOCATION -- }
+{ works }
+: ARRAY-TO-BMP-INV cr ." starting inv bmp " cr
+  bmp-y-size @ 0 DO                                         { LOOP OVER THE ROWS }
+    bmp-x-size @ 0 DO                                       { LOOP OVER THE COLUMNS}
+      bmp-address @ HEADER-OFFSET + I 3 * J bmp-x-size @ 3 * * + +
+      over I + bmp-y-size @ J 1 + - bmp-x-size @ * + c@     { get value from array }
+      \ dup .                                               { uncomment to print out array }
+        1 = IF                                              { if value at i is 1 }
+          WRITE-BLACK                                       { make pixel black }
+        ELSE 
+          WRITE-WHITE                                       { make pixel black }
+        THEN drop
+    LOOP cr
   LOOP ;
 
 { ARR-LOCATION -- }
@@ -517,7 +523,7 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
   LOOP ;
 
     \  paint-pixels       { Demo paint individual pixels           }
-   54 CONSTANT HEADER-OFFSET
+
    16 bmp-x-size !    { Create a blank 16x16 .bmp in memory    }
    16 bmp-y-size !
    Setup-Test-Memory  
@@ -526,14 +532,14 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
    RND-ARR 16 16 * FILL-RND
    RND-ARR 16 16 SHOW-ARRAY-Y-X
 
-    RND-ARR 16 16 * ARRAY-TO-BMP 
+   RND-ARR ARRAY-TO-BMP-INV
 
 
-    \ cr ." Starting single pixel paint test " cr
-    \ New-bmp-Window-stretch
-    \ bmp-window-handle !
+    cr ." Starting single pixel paint test " cr
+    New-bmp-Window-stretch
+    bmp-window-handle !
 
-    \ bmp-address @ bmp-to-screen-stretch
+    bmp-address @ bmp-to-screen-stretch
 
     \ 10000 ms
     \ cr ." Ending single pixel paint test " 
