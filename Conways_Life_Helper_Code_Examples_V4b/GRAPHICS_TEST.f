@@ -470,16 +470,17 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
 
 { ----------------------------- Run Test Output Routines ------------------------------- }
 
+{ POSITION-IN-BMP -- }
 : WRITE-BLACK 
   0 over C!
   1 + 0 over c!
   1 + 0 over c! ;
 
-: TEST-WORD 5 . ;
-TEST-WORD
-  \  8 bmp-x-size ! 
-  \  8 bmp-y-size !
-  \  Setup-Test-Memory  { Create a blank 8x8 .bmp in memory      } 
+{ POSITION-IN-BMP -- }
+: WRITE-WHITE
+  255 over C!
+  1 + 255 over c!
+  1 + 255 over c! ;
 
   \  paint-pixels       { Demo paint individual pixels           }
    54 CONSTANT HEADER-OFFSET
@@ -491,11 +492,35 @@ TEST-WORD
    RND-ARR 16 16 * FILL-RND
    RND-ARR 16 16 SHOW-ARRAY-Y-X
 
-  \  54 offset !
+{ ARR-LOCATION SIZE -- }
+: ARRAY-TO-BMP
+  0 DO
+    bmp-address @ HEADER-OFFSET + I 3 * + { pixel i in bmp image }
+    over I + c@ { value at i in array }
+    1 = IF { if value at i is 1 }
+      WRITE-BLACK { make pixel black }
+    ELSE WRITE-WHITE
+    THEN drop
+  LOOP ;
 
-    \ cr ." Starting single pixel paint test " cr
-    \ New-bmp-Window-stretch
-    \ bmp-window-handle !
+    RND-ARR 16 16 * ARRAY-TO-BMP
+
+    cr ." Starting single pixel paint test " cr
+    New-bmp-Window-stretch
+    bmp-window-handle !
+
+    bmp-address @ bmp-to-screen-stretch
+
+    10000 ms
+    cr ." Ending single pixel paint test " 
+    bmp-window-handle @ DestroyWindow drop  { Kill of display window                       }
+
+: SHOW-ARRAY-Y-X
+dup rot * 0 DO
+    dup I swap mod 0= IF
+        CR
+    THEN over I + c@ .
+LOOP ;
 
     \ bmp-address @ HEADER-OFFSET + 16 16 3 * * 255 FILL
     
