@@ -522,17 +522,17 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
     CR
   LOOP ;
 
-    \  paint-pixels       { Demo paint individual pixels           }
+  \   \  paint-pixels       { Demo paint individual pixels           }
 
-   100 bmp-x-size !    { Create a blank 16x16 .bmp in memory    }
-   100 bmp-y-size !
-   Setup-Test-Memory  
+  \  100 bmp-x-size !    { Create a blank 16x16 .bmp in memory    }
+  \  100 bmp-y-size !
+  \  Setup-Test-Memory  
 
-  \  16 CREATE-N-BY-N CONSTANT RND-ARR
-  bmp-x-size @ bmp-y-size @ CREATE-X-BY-Y CONSTANT RND-ARR
-  RND-ARR bmp-x-size @ bmp-y-size @ * FILL-RND
+  \ \  16 CREATE-N-BY-N CONSTANT RND-ARR
+  \ bmp-x-size @ bmp-y-size @ CREATE-X-BY-Y CONSTANT RND-ARR
+  \ RND-ARR bmp-x-size @ bmp-y-size @ * FILL-RND
 
-  RND-ARR ARRAY-TO-BMP-INV
+  \ RND-ARR ARRAY-TO-BMP-INV
 
 : RND-WINDOW 
   cr cr ." Creating random window " cr cr
@@ -545,10 +545,13 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
     100 ms
     KEY?
   UNTIL
-
+ 
   ." ENDING RANDOM WINDOW "
 ;
-  rnd-window
+\ run this command below to create a random window
+  \ rnd-window
+    
+    
     \ cr ." Starting single pixel paint test " cr
     \ New-bmp-Window-stretch
     \ bmp-window-handle !
