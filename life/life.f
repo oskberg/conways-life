@@ -34,6 +34,7 @@ VARIABLE    GRID-Y
 
     ( 1 0 alive )
     1 ARR-CELLS @ 1 + C!
+    1 ARR-CELLS @ 7 + 3 GRID-X @ * + C!
 
 ; 
 
@@ -50,27 +51,10 @@ VARIABLE    GRID-Y
 ( Possibly working for non-edge cases )
 : COUNT-NEIGHBOURS-NOWRAP ( X Y -- N )
     0 ( start count at 0 )
-    2 -1 DO 
-        2 -1 DO
-            I 0 = J 0 = + -2 = IF ( IF TRUE -> I = J = 0 and don't do anything )
-            ELSE
-                over J + ( Y + J )
-                GRID-X @ *
-                3 pick I + ( X + I )
-                ARR-CELLS @ + + c@ ( Read status at position x y )
-                + ( add to total )
-            THEN
-        LOOP
-    LOOP
-    ROT ROT DROP DROP
-;
-
-: COUNT-NEIGHBOURS-NOWRAP ( X Y -- N )
-    0 ( start count at 0 )
     over 1 swap GRID-Y @ 1 - < -
     2 pick 0 > 
     DO
-        over 1 swap GRID-X @ 1 - < -
+        2 pick 1 swap GRID-X @ 1 - < -
         3 pick 0 > 
         DO 
             I 0 = J 0 = + -2 = IF ( IF TRUE -> I = J = 0 and don't do anything )
@@ -86,9 +70,24 @@ VARIABLE    GRID-Y
     rot rot drop drop 
 ;
 
+( count neighbours for all cells and put them into neighbour array )
+: COUNT-ALL-NEIGHBOURS ( -- )
+    GRID-Y @ 0 DO
+        GRID-X @ 0 DO
+            J I COUNT-NEIGHBOURS-NOWRAP     ( number of neighbours )
+            I GRID-X @ * J + ARR-NEIGH @ +    ( location in arr-neigh )
+            c!                               ( write to that location )
+        LOOP
+    LOOP
+;
+
 { RUNNING BIT }
 
 SETUP-LIFE
 SHOW-LIFE-ARRS
 
-3 3 COUNT-NEIGHBOURS-NOWRAP CR CR . CR CR 
+COUNT-ALL-NEIGHBOURS 
+
+SHOW-LIFE-ARRS
+
+\ 2 1 COUNT-NEIGHBOURS-NOWRAP CR CR . CR CR 
