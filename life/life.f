@@ -20,20 +20,20 @@ INCLUDE     input-output.f
 
 : ACORN-200 cr
     ." ACORN setup "
-    100 100 ADD-CELL
-    101 101 ADD-CELL
-    101 102 ADD-CELL
-    101 103 ADD-CELL
-    99  98  ADD-CELL
-    101 98  ADD-CELL
-    101 97  ADD-CELL
+    200 200 ADD-CELL
+    201 201 ADD-CELL
+    201 202 ADD-CELL
+    201 203 ADD-CELL
+    199 198  ADD-CELL
+    201 198  ADD-CELL
+    201 197  ADD-CELL
 ;
 
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    200  GRID-X         !
-    200  GRID-Y         !
+    400  GRID-X         !
+    400  GRID-Y         !
     0    CURRENT-GEN    !
 
     ( create arrays )
@@ -130,16 +130,15 @@ INCLUDE     input-output.f
 : COUNT-NEIGHBOURS-WRAP ( X Y -- N )
     0
     ( x y 0 )
+    ( Loop twice to go through -1, 0, 1 for x and y )
     2 -1 DO 
         2 -1 DO
-            I 0 = J 0 = + -2 = IF
+            I 0 = J 0 = + -2 = IF                       ( if x = y = 0 skip )
             ELSE
-                2 pick GRID-X @ J + + GRID-X @ mod 
-                ( x y 0 x_investigated)
-                2 pick GRID-Y @ I + + GRID-Y @ mod 
-                ( x y 0 x_inv y_inv )
-                GRID-X @ * + ARR-CELLS @ + c@ +
-                ( x y total ) 
+                2 pick GRID-X @ J + + GRID-X @ mod      ( find the x coord )
+                2 pick GRID-Y @ I + + GRID-Y @ mod      ( find the y coord )
+                GRID-X @ * + ARR-CELLS @ + c@           ( find the location in array )
+                +                                       ( add to total )
             THEN
             LOOP
         LOOP
@@ -180,6 +179,7 @@ INCLUDE     input-output.f
     SETUP-LIFE
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
+    CLOSE-TEST-FILE
     BEGIN
         CURRENT-GEN @ 1 + CURRENT-GEN !
         DRAW-LIFE
@@ -195,5 +195,4 @@ INCLUDE     input-output.f
 { RUNNING BIT }
 
 \ 2 1 COUNT-NEIGHBOURS-NOWRAP CR CR . CR CR 
-close-test-file
 RUN-LIFE
