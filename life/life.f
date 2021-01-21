@@ -4,11 +4,12 @@ VARIABLE    ARR-CELLS
 VARIABLE    ARR-NEIGH 
 VARIABLE    GRID-X 
 VARIABLE    GRID-Y 
+VARIABLE    CURRENT-GEN
 
 { IMPORTS }
-INCLUDE words-list
-INCLUDE GRAPHICS_TEST.F
-INCLUDE input-output.f
+INCLUDE     words-list.f
+INCLUDE     GRAPHICS_TEST.F
+INCLUDE     input-output.f
 
 { LIFE-SPECIFIC FUNCTIONS }
 
@@ -17,11 +18,23 @@ INCLUDE input-output.f
     1 rot rot ARR-CELLS @ rot rot GRID-X @ * + + C!
 ;
 
+: ACORN-200 cr
+    ." ACORN setup "
+    100 100 ADD-CELL
+    101 101 ADD-CELL
+    101 102 ADD-CELL
+    101 103 ADD-CELL
+    99  98  ADD-CELL
+    101 98  ADD-CELL
+    101 97  ADD-CELL
+;
+
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    100  GRID-X  !
-    100  GRID-Y  !
+    200  GRID-X         !
+    200  GRID-Y         !
+    0    CURRENT-GEN    !
 
     ( create arrays )
     GRID-X @ GRID-Y @ CREATE-X-BY-Y ARR-CELLS ! 
@@ -46,12 +59,31 @@ INCLUDE input-output.f
     \ 1 ARR-CELLS @ 2 GRID-X @ * + 2 + C!
     \ 1 ARR-CELLS @ 2 GRID-X @ * + 4 + C!
     \ 1 ARR-CELLS @ 3 GRID-X @ * + 3 + C!
-    19 21 ADD-CELL
-    20 19 ADD-CELL
-    20 21 ADD-CELL
-    21 20 ADD-CELL
-    21 21 ADD-CELL
+    ( methuselah 1 )
+    \ 499 500 ADD-CELL
+    \ 499 501 ADD-CELL
+    \ 499 502 ADD-CELL
+    \ 500 499 ADD-CELL
+    \ 501 499 ADD-CELL
+    ( methuselah 2 )
+    \ 51 47 ADD-CELL
+    \ 50 47 ADD-CELL
+    \ 49 47 ADD-CELL
+    \ 49 48 ADD-CELL
+    \ 49 49 ADD-CELL
+    \ 50 49 ADD-CELL
+    \ 51 49 ADD-CELL
 
+    \ ( methuselah 5 )
+    \ 499 500 ADD-CELL
+    \ 499 501 ADD-CELL
+    \ 499 502 ADD-CELL
+    \ 500 500 ADD-CELL
+    \ 500 499 ADD-CELL
+    \ 501 500 ADD-CELL
+    \ 501 501 ADD-CELL
+
+    ACORN-200
 
     GRID-X @ bmp-x-size !    { Create a blank 16x16 .bmp in memory    }
     GRID-Y @ bmp-y-size !
@@ -71,7 +103,6 @@ INCLUDE input-output.f
 
 ( counts neighbours of a cells in the arr-cells and puts them into arr-neigh )
 ( input x and y position. Number of neighbours left on stack )
-( Possibly working for non-edge cases )
 : COUNT-NEIGHBOURS-NOWRAP ( X Y -- N )
     0 ( start count at 0 )
     over 1 swap GRID-Y @ 1 - < -
@@ -150,11 +181,12 @@ INCLUDE input-output.f
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
     BEGIN
+        CURRENT-GEN @ 1 + CURRENT-GEN !
         DRAW-LIFE
         SAVE-CELL-STATS
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
-        50 ms
+        1 ms
         KEY?
     UNTIL
     bmp-window-handle @ DestroyWindow drop
