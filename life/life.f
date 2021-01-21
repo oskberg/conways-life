@@ -20,8 +20,8 @@ INCLUDE input-output.f
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    8  GRID-X  !
-    8  GRID-Y  !
+    100  GRID-X  !
+    100  GRID-Y  !
 
     ( create arrays )
     GRID-X @ GRID-Y @ CREATE-X-BY-Y ARR-CELLS ! 
@@ -46,12 +46,11 @@ INCLUDE input-output.f
     \ 1 ARR-CELLS @ 2 GRID-X @ * + 2 + C!
     \ 1 ARR-CELLS @ 2 GRID-X @ * + 4 + C!
     \ 1 ARR-CELLS @ 3 GRID-X @ * + 3 + C!
-    1 2 ADD-CELL
-    2 1 ADD-CELL
-    2 3 ADD-CELL
-    3 2 ADD-CELL
-    3 3 ADD-CELL
-
+    49 50 ADD-CELL
+    49 51 ADD-CELL
+    49 52 ADD-CELL
+    50 49 ADD-CELL
+    51 49 ADD-CELL
 
     GRID-X @ bmp-x-size !    { Create a blank 16x16 .bmp in memory    }
     GRID-Y @ bmp-y-size !
@@ -131,7 +130,7 @@ INCLUDE input-output.f
         SAVE-CELL-STATS
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
-        200 ms
+        50 ms
         KEY?
     UNTIL
     bmp-window-handle @ DestroyWindow drop
