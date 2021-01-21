@@ -81,12 +81,28 @@ VARIABLE    GRID-Y
     LOOP
 ;
 
+( updates the life array with dead/allive cells )
+: UPDATE-LIFE-ARRS ( -- )
+    GRID-Y @ 0 DO
+        GRID-X @ 0 DO
+            I GRID-x @ * J + ARR-CELLS @ + c@   ( finds status of cell )
+            I GRID-x @ * J + ARR-NEIGH @ + c@   ( finds # of neighbours )
+            LIFE-RULE                           ( does rules to leave 1/0 on stack )
+            I GRID-x @ * J + ARR-CELLS @ + c!   ( writes value to arr-cells )
+        LOOP
+    LOOP
+;
+
 { RUNNING BIT }
 
 SETUP-LIFE
 SHOW-LIFE-ARRS
 
 COUNT-ALL-NEIGHBOURS 
+
+SHOW-LIFE-ARRS
+
+UPDATE-LIFE-ARRS
 
 SHOW-LIFE-ARRS
 
