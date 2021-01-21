@@ -124,11 +124,34 @@ INCLUDE     input-output.f
     rot rot drop drop 
 ;
 
+( counts neighbours of a cells in the arr-cells and puts them into arr-neigh )
+( input x and y position. Number of neighbours left on stack )
+( Possibly working for non-edge cases )
+: COUNT-NEIGHBOURS-WRAP ( X Y -- N )
+    0
+    ( x y 0 )
+    2 -1 DO 
+        2 -1 DO
+            I 0 = J 0 = + -2 = IF
+            ELSE
+                2 pick GRID-X @ J + + GRID-X @ mod 
+                ( x y 0 x_investigated)
+                2 pick GRID-Y @ I + + GRID-Y @ mod 
+                ( x y 0 x_inv y_inv )
+                GRID-X @ * + ARR-CELLS @ + c@ +
+                ( x y total ) 
+            THEN
+            LOOP
+        LOOP
+    
+    rot rot drop drop
+;
+
 ( count neighbours for all cells and put them into neighbour array )
 : COUNT-ALL-NEIGHBOURS ( -- )
     GRID-Y @ 0 DO
         GRID-X @ 0 DO
-            J I COUNT-NEIGHBOURS-NOWRAP     ( number of neighbours )
+            J I COUNT-NEIGHBOURS-WRAP     ( number of neighbours )
             I GRID-X @ * J + ARR-NEIGH @ +    ( location in arr-neigh )
             c!                               ( write to that location )
         LOOP
