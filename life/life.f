@@ -12,6 +12,11 @@ INCLUDE input-output.f
 
 { LIFE-SPECIFIC FUNCTIONS }
 
+: ADD-CELL ( row-index column-index -- )
+    swap
+    1 rot rot ARR-CELLS @ rot rot GRID-X @ * + + C!
+;
+
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
@@ -29,13 +34,24 @@ INCLUDE input-output.f
     ( SET SEED HERE )
 
     ( SIMPLE 3 CELL LINE IN THE MIDDLE, FLOORED OBVIOUSLY )
-    1 ARR-CELLS @ GRID-X @ GRID-Y @ 2 / * GRID-X @ 2 / + + C!
-    1 ARR-CELLS @ GRID-X @ GRID-Y @ 2 / * GRID-X @ 2 / + + 1 + C!
-    1 ARR-CELLS @ GRID-X @ GRID-Y @ 2 / * GRID-X @ 2 / + + 1 - C!
+    \ 1 ARR-CELLS @ GRID-X @ GRID-Y @ 2 / * GRID-X @ 2 / + + C!
+    \ 1 ARR-CELLS @ GRID-X @ GRID-Y @ 2 / * GRID-X @ 2 / + + 1 + C!
+    \ 1 ARR-CELLS @ GRID-X @ GRID-Y @ 2 / * GRID-X @ 2 / + + 1 - C!
 
     ( 1 0 alive )
-    1 ARR-CELLS @ 1 + C!
-    1 ARR-CELLS @ 7 + 3 GRID-X @ * + C!
+    \ 1 ARR-CELLS @ 1 + C!
+    \ 1 ARR-CELLS @ 7 + 3 GRID-X @ * + C!
+
+    \ 1 ARR-CELLS @ 1 GRID-X @ * + 3 + C!
+    \ 1 ARR-CELLS @ 2 GRID-X @ * + 2 + C!
+    \ 1 ARR-CELLS @ 2 GRID-X @ * + 4 + C!
+    \ 1 ARR-CELLS @ 3 GRID-X @ * + 3 + C!
+    1 2 ADD-CELL
+    2 1 ADD-CELL
+    2 3 ADD-CELL
+    3 2 ADD-CELL
+    3 3 ADD-CELL
+
 
     GRID-X @ bmp-x-size !    { Create a blank 16x16 .bmp in memory    }
     GRID-Y @ bmp-y-size !
