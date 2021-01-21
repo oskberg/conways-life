@@ -1,6 +1,7 @@
 { IMPORTS }
 INCLUDE words-list
 INCLUDE GRAPHICS_TEST.F
+INCLUDE input-output.f
 
 { GLOBAL VARIABLES }
 
