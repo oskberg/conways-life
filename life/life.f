@@ -1,5 +1,6 @@
 { IMPORTS }
 INCLUDE words-list
+INCLUDE GRAPHICS_TEST.F
 
 { GLOBAL VARIABLES }
 
@@ -36,6 +37,12 @@ VARIABLE    GRID-Y
     1 ARR-CELLS @ 1 + C!
     1 ARR-CELLS @ 7 + 3 GRID-X @ * + C!
 
+    GRID-X @ bmp-x-size !    { Create a blank 16x16 .bmp in memory    }
+    GRID-Y @ bmp-y-size !
+    Setup-Test-Memory
+
+    New-bmp-Window-stretch
+    bmp-window-handle !
 ; 
 
 : SHOW-LIFE-ARRS ( -- )
@@ -93,17 +100,24 @@ VARIABLE    GRID-Y
     LOOP
 ;
 
+: DRAW-LIFE
+    ARR-CELLS @ ARRAY-TO-BMP-INV
+    bmp-address @ bmp-to-screen-stretch
+    \ bmp-window-handle @ DestroyWindow drop
+;
+
+: RUN-LIFE
+    SETUP-LIFE
+    BEGIN
+        DRAW-LIFE
+        COUNT-ALL-NEIGHBOURS
+        UPDATE-LIFE-ARRS
+        200 ms
+        KEY?
+    UNTIL
+    bmp-window-handle @ DestroyWindow drop
+;
+
 { RUNNING BIT }
 
-SETUP-LIFE
-SHOW-LIFE-ARRS
-
-COUNT-ALL-NEIGHBOURS 
-
-SHOW-LIFE-ARRS
-
-UPDATE-LIFE-ARRS
-
-SHOW-LIFE-ARRS
-
-\ 2 1 COUNT-NEIGHBOURS-NOWRAP CR CR . CR CR 
+RUN-LIFE

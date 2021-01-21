@@ -68,7 +68,7 @@ LOOP ;
 LOOP ;
 
 { returns 1 if alive and 0 if dead }
-: LIFE-RULE ( status neighbours -- )
+: LIFE-RULE ( status neighbours -- new-status )
     CASE 
         0 OF drop 0 ENDOF 
         1 OF drop 0 ENDOF 
