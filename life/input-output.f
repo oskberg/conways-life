@@ -28,12 +28,14 @@ variable TEST-FILE-ID                             { Create Variable to hold file
 
 ( writes the file header )
 : WRITE-FILE-HEADER
-  s" # alive cells, # dead cells " TEST-FILE-ID @ write-line drop
+  s" generation #, # alive cells, # dead cells " TEST-FILE-ID @ write-line drop
 ;
 
 ( writes the # of alive and dead cells to a csv file in output )
 : SAVE-CELL-STATS ( -- )
-    OPEN-TEST-FILE
+    CURRENT-GEN @ (.) TEST-FILE-ID @ write-file drop  ( writes the current generation )
+    s" ," TEST-FILE-ID @ write-file drop              
+
     0
     GRID-Y @ 0 DO
         GRID-X @ 0 DO
@@ -41,13 +43,11 @@ variable TEST-FILE-ID                             { Create Variable to hold file
             +                                   ( adds it to the total )
         LOOP
     LOOP
+    dup
+    (.) TEST-FILE-ID @ write-file drop          ( writes # alive cells to csv file )
+    s" ," TEST-FILE-ID @ write-file drop
 
-    dup GRID-X @ GRID-Y @ * swap -              ( finds the # dead cells )
-    swap
-    CURRENT-GEN @ (.) TEST-FILE-ID @ write-file drop
-    s" ," TEST-FILE-ID @ write-file drop
-    (.) TEST-FILE-ID @ write-file drop          ( writes data to csv file )
-    s" ," TEST-FILE-ID @ write-file drop
-    (.) TEST-FILE-ID @ write-line drop
-    CLOSE-TEST-FILE
+    GRID-X @ GRID-Y @ * swap -                  ( finds the # dead cells )
+    (.) TEST-FILE-ID @ write-line drop          ( writes to csv file )
+    drop
 ;
