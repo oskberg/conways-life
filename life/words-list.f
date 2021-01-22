@@ -82,4 +82,3 @@ LOOP ;
         ." More than 8 neighbours were counted. "
     ENDCASE 
 ;
-

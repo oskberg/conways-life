@@ -28,7 +28,7 @@ variable TEST-FILE-ID                             { Create Variable to hold file
 
 ( writes the file header )
 : WRITE-FILE-HEADER
-  s" generation #, # alive cells, # dead cells " TEST-FILE-ID @ write-line drop
+  s" generation #, # alive cells, # dead cells, BORN, KILLED " TEST-FILE-ID @ write-line drop
 ;
 
 ( writes the # of alive and dead cells to a csv file in output )
@@ -48,6 +48,12 @@ variable TEST-FILE-ID                             { Create Variable to hold file
     s" ," TEST-FILE-ID @ write-file drop
 
     GRID-X @ GRID-Y @ * swap -                  ( finds the # dead cells )
-    (.) TEST-FILE-ID @ write-line drop          ( writes to csv file )
-    drop
+    (.) TEST-FILE-ID @ write-file drop          ( writes to csv file )
+    s" ," TEST-FILE-ID @ write-file drop
+    
+    BORN @ (.) TEST-FILE-ID @ write-file drop
+    s" ," TEST-FILE-ID @ write-file drop
+
+    KILLED @ (.) TEST-FILE-ID @ write-line drop
+            
 ;

@@ -5,6 +5,8 @@ VARIABLE    ARR-NEIGH
 VARIABLE    GRID-X 
 VARIABLE    GRID-Y 
 VARIABLE    CURRENT-GEN
+VARIABLE    BORN
+VARIABLE    KILLED
 
 { IMPORTS }
 INCLUDE     words-list.f
@@ -85,12 +87,32 @@ INCLUDE     input-output.f
 
     ACORN-200
 
-    GRID-X @ bmp-x-size !    { Create a blank 16x16 .bmp in memory    }
+    GRID-X @ bmp-x-size !
     GRID-Y @ bmp-y-size !
     Setup-Test-Memory
 
     New-bmp-Window-stretch
     bmp-window-handle !
+; 
+
+: SETUP-LIFE-SILENT ( -- )
+    ( set grid sizes in globals )
+    ( HAVE TO BE DIVISABLE BY 16? )
+    400  GRID-X         !
+    400  GRID-Y         !
+    0    CURRENT-GEN    !
+
+    ( create arrays )
+    GRID-X @ GRID-Y @ CREATE-X-BY-Y ARR-CELLS ! 
+    GRID-X @ GRID-Y @ CREATE-X-BY-Y ARR-NEIGH ! 
+
+    ( initilise with 0 )
+    ARR-CELLS @ GRID-X @ GRID-Y @ * 0 FILL
+    ARR-NEIGH @ GRID-X @ GRID-Y @ * 0 FILL
+    
+    ( SET SEED HERE )
+
+    ACORN-200
 ; 
 
 : SHOW-LIFE-ARRS ( -- )
@@ -121,7 +143,7 @@ INCLUDE     input-output.f
             THEN
         LOOP
     LOOP
-    rot rot drop drop 
+    rot rot drop drop
 ;
 
 ( counts neighbours of a cells in the arr-cells and puts them into arr-neigh )
@@ -159,12 +181,19 @@ INCLUDE     input-output.f
 
 ( updates the life array with dead/allive cells )
 : UPDATE-LIFE-ARRS ( -- )
+    0 BORN !
     GRID-Y @ 0 DO
         GRID-X @ 0 DO
             I GRID-x @ * J + ARR-CELLS @ + c@   ( finds status of cell )
+            dup 
             I GRID-x @ * J + ARR-NEIGH @ + c@   ( finds # of neighbours )
-            LIFE-RULE                           ( does rules to leave 1/0 on stack )
+            LIFE-RULE                           ( does rules to leaves 1/0 on stack )
+            dup
             I GRID-x @ * J + ARR-CELLS @ + c!   ( writes value to arr-cells )
+            1 pick 1 pick < IF BORN @ 1 + BORN !              ( if new status > old status cell has been born ) 
+            THEN > 
+                IF KILLED @ 1 + KILLED ! 
+                THEN 
         LOOP
     LOOP
 ;
@@ -173,6 +202,7 @@ INCLUDE     input-output.f
     ARR-CELLS @ ARRAY-TO-BMP-INV
     bmp-address @ bmp-to-screen-stretch
     \ bmp-window-handle @ DestroyWindow drop
+    drop
 ;
 
 : RUN-LIFE
@@ -180,19 +210,33 @@ INCLUDE     input-output.f
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
     BEGIN
-        CURRENT-GEN @ 1 + CURRENT-GEN !
         DRAW-LIFE
         SAVE-CELL-STATS
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
         10 ms
+        CURRENT-GEN @ 1 + CURRENT-GEN !
         KEY?
     UNTIL
     bmp-window-handle @ DestroyWindow drop
     CLOSE-TEST-FILE
 ;
 
+: RUN-LIFE-SILENT ( BREAKS FOR SOME REASON)
+    SETUP-LIFE-SILENT
+    MAKE-TEST-FILE
+    WRITE-FILE-HEADER
+    10 0 DO
+        SAVE-CELL-STATS
+        COUNT-ALL-NEIGHBOURS
+        UPDATE-LIFE-ARRS
+        1 ms
+        CURRENT-GEN @ 1 + CURRENT-GEN !
+    LOOP
+    ." tHIS IS THE END "
+    CLOSE-TEST-FILE
+;
+
 { RUNNING BIT }
 
-\ 2 1 COUNT-NEIGHBOURS-NOWRAP CR CR . CR CR 
-RUN-LIFE
+RUN-LIFE-SILENT
