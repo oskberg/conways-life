@@ -20,13 +20,13 @@ variable test-file-id                             { Create Variable to hold file
 
 
 : make-test-file                                  { Create a test file to read / write to  }
-  s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\squares.csv" r/w create-file drop  { Create the file                        } 
+  s" C:\Users\Oskar\Desktop\output\squares3.csv" r/w create-file drop  { Create the file                        } 
   test-file-id !                                  { Store file handle for later use        }
 ;
 
  
 : open-test-file                                  { Open the file for read/write access    }
-  s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\test.dat" r/w open-file drop    { Not needed if we have just created     }
+  s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\squares3.csv" r/w open-file drop    { Not needed if we have just created     }
   test-file-id !                                  { file.                                  }
 ;
 
@@ -105,7 +105,7 @@ variable test-file-id                             { Create Variable to hold file
   make-test-file
   write-file-header-2
 
-  41 20 DO
+  10 1 DO
     I (.) test-file-id @ write-file drop
     s" ," test-file-id @ write-file drop
     I I * (.) test-file-id @ write-file drop
@@ -116,4 +116,12 @@ variable test-file-id                             { Create Variable to hold file
 
 ;
 
+
 write-squares
+
+\ open-test-file
+
+s" C:\Users\Oskar\Desktop\output\squares3.csv" r/w open-file .
+test-file-id !
+1 test-file-id @ reposition-file
+s" this is new test 123" test-file-id @ write-file drop

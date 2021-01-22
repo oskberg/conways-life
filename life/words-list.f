@@ -80,5 +80,6 @@ LOOP ;
         7 OF drop 0 ENDOF 
         8 OF drop 0 ENDOF 
         ." More than 8 neighbours were counted. "
-    ENDCASE ;
+    ENDCASE 
+;
 
