@@ -150,7 +150,7 @@ INCLUDE     input-output.f
 : COUNT-ALL-NEIGHBOURS ( -- )
     GRID-Y @ 0 DO
         GRID-X @ 0 DO
-            J I COUNT-NEIGHBOURS-WRAP     ( number of neighbours )
+            J I COUNT-NEIGHBOURS-NOWRAP     ( number of neighbours )
             I GRID-X @ * J + ARR-NEIGH @ +    ( location in arr-neigh )
             c!                               ( write to that location )
         LOOP
@@ -189,7 +189,7 @@ INCLUDE     input-output.f
         SAVE-CELL-STATS
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
-        1 ms
+        10 ms
         KEY?
     UNTIL
     bmp-window-handle @ DestroyWindow drop
