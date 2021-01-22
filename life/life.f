@@ -182,6 +182,7 @@ INCLUDE     input-output.f
 ( updates the life array with dead/allive cells )
 : UPDATE-LIFE-ARRS ( -- )
     0 BORN !
+    0 KILLED !
     GRID-Y @ 0 DO
         GRID-X @ 0 DO
             I GRID-x @ * J + ARR-CELLS @ + c@   ( finds status of cell )
