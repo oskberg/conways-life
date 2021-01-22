@@ -208,8 +208,11 @@ INCLUDE     input-output.f
 
 : RUN-LIFE
     SETUP-LIFE
+    depth . cr
     MAKE-TEST-FILE
+    depth . cr
     WRITE-FILE-HEADER
+    depth . cr
     BEGIN
         DRAW-LIFE
         SAVE-CELL-STATS
