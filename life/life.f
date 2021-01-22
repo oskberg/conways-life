@@ -173,12 +173,16 @@ INCLUDE     input-output.f
     ARR-CELLS @ ARRAY-TO-BMP-INV
     bmp-address @ bmp-to-screen-stretch
     \ bmp-window-handle @ DestroyWindow drop
+    drop
 ;
 
 : RUN-LIFE
     SETUP-LIFE
+    depth . cr
     MAKE-TEST-FILE
+    depth . cr
     WRITE-FILE-HEADER
+    depth . cr
     BEGIN
         CURRENT-GEN @ 1 + CURRENT-GEN !
         DRAW-LIFE

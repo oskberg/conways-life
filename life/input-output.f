@@ -49,5 +49,4 @@ variable TEST-FILE-ID                             { Create Variable to hold file
 
     GRID-X @ GRID-Y @ * swap -                  ( finds the # dead cells )
     (.) TEST-FILE-ID @ write-line drop          ( writes to csv file )
-    drop
 ;
