@@ -179,7 +179,6 @@ INCLUDE     input-output.f
     SETUP-LIFE
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
-    CLOSE-TEST-FILE
     BEGIN
         CURRENT-GEN @ 1 + CURRENT-GEN !
         DRAW-LIFE
@@ -190,6 +189,7 @@ INCLUDE     input-output.f
         KEY?
     UNTIL
     bmp-window-handle @ DestroyWindow drop
+    CLOSE-TEST-FILE
 ;
 
 { RUNNING BIT }
