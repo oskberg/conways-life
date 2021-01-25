@@ -20,7 +20,7 @@ INCLUDE     input-output.f
     1 rot rot ARR-CELLS @ rot rot GRID-X @ * + + C!
 ;
 
-: ACORN-200 cr
+: ACORN-400 cr
     ." ACORN setup "
     200 200  ADD-CELL
     201 201  ADD-CELL
@@ -31,11 +31,40 @@ INCLUDE     input-output.f
     201 197  ADD-CELL
 ;
 
+: WRAPPED-EDGES-TEST cr
+    ." Wrapped edges blinker test setup "
+    0 0 ADD-CELL
+    1 0 ADD-CELL
+    GRID-Y @ 1 - 0 ADD-CELL
+;
+
+: GLIDER-SETUP cr 
+    ." GLIDER setup "
+    1 0 ADD-CELL 
+    2 1 ADD-CELL
+    0 2 ADD-CELL 
+    1 2 ADD-CELL 
+    2 2 ADD-CELL
+;
+
+: SPACESHIP-SETUP cr 
+    ." SPACESHIP setup "
+    GRID-Y @ 2 / 0 ADD-CELL
+    GRID-Y @ 2 / 2 + 0 ADD-CELL
+    GRID-Y @ 2 / 1 - 1 ADD-CELL
+    GRID-Y @ 2 / 1 - 2 ADD-CELL
+    GRID-Y @ 2 / 1 - 3 ADD-CELL
+    GRID-Y @ 2 / 1 - 4 ADD-CELL
+    GRID-Y @ 2 / 2 + 3 ADD-CELL
+    GRID-Y @ 2 / 4 ADD-CELL
+    GRID-Y @ 2 / 1 + 4 ADD-CELL
+;
+
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    16  GRID-X         !
-    16  GRID-Y         !
+    100  GRID-X         !
+    100  GRID-Y         !
     0    CURRENT-GEN    !
 
     ( create arrays )
@@ -85,10 +114,16 @@ INCLUDE     input-output.f
     \ 501 500 ADD-CELL
     \ 501 501 ADD-CELL
 
-    \ ACORN-200
+    \ ACORN-400
+
+    \ WRAPPED-EDGES-TEST
+
+    \ GLIDER-SETUP
+
+    SPACESHIP-SETUP
 
     ( RANDOM START )
-    ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
+    \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
 
 
     GRID-X @ bmp-x-size !
@@ -116,7 +151,7 @@ INCLUDE     input-output.f
     
     ( SET SEED HERE )
 
-    ACORN-200
+    ACORN-400
 ; 
 
 : SHOW-LIFE-ARRS ( -- )
@@ -215,13 +250,13 @@ INCLUDE     input-output.f
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
     DRAW-LIFE
-    3000 ms
+    100 ms
     BEGIN
         DRAW-LIFE
         SAVE-CELL-STATS
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
-        10 ms
+        100 ms
         CURRENT-GEN @ 1 + CURRENT-GEN !
         KEY?
     UNTIL
