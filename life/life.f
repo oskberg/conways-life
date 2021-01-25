@@ -7,6 +7,8 @@ VARIABLE    GRID-Y
 VARIABLE    CURRENT-GEN
 VARIABLE    BORN
 VARIABLE    KILLED
+VARIABLE    AVG-X 
+VARIABLE    AVG-Y 
 
 { IMPORTS }
 INCLUDE     words-list.f
@@ -66,6 +68,8 @@ INCLUDE     input-output.f
     100  GRID-X         !
     100  GRID-Y         !
     0    CURRENT-GEN    !
+    0    AVG-X          !
+    0    AVG-Y          !
 
     ( create arrays )
     GRID-X @ GRID-Y @ CREATE-X-BY-Y ARR-CELLS ! 
@@ -222,18 +226,24 @@ INCLUDE     input-output.f
 : UPDATE-LIFE-ARRS ( -- )
     0 BORN !
     0 KILLED !
+    0 AVG-X !
+    0 AVG-Y !
     GRID-Y @ 0 DO
         GRID-X @ 0 DO
             I GRID-x @ * J + ARR-CELLS @ + c@   ( finds status of cell )
             dup 
             I GRID-x @ * J + ARR-NEIGH @ + c@   ( finds # of neighbours )
             LIFE-RULE                           ( does rules to leaves 1/0 on stack )
-            dup
+            dup dup
             I GRID-x @ * J + ARR-CELLS @ + c!   ( writes value to arr-cells )
             1 pick 1 pick < IF BORN @ 1 + BORN !              ( if new status > old status cell has been born ) 
             THEN > 
                 IF KILLED @ 1 + KILLED ! 
                 THEN 
+            1 = if                               ( if cell is alive add x & y values to averages )
+                AVG-X @ I + AVG-X !
+                AVG-Y @ J + AVG-Y !
+            then
         LOOP
     LOOP
 ;

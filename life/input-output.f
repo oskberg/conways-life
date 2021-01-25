@@ -28,7 +28,7 @@ variable TEST-FILE-ID                             { Create Variable to hold file
 
 ( writes the file header )
 : WRITE-FILE-HEADER
-  s" generation #, # alive cells, # dead cells, BORN, KILLED " TEST-FILE-ID @ write-line drop
+  s" generation #, # alive cells, # dead cells, BORN, KILLED, avg x pos, avg y pos " TEST-FILE-ID @ write-line drop
 ;
 
 ( writes the # of alive and dead cells to a csv file in output )
@@ -43,7 +43,7 @@ variable TEST-FILE-ID                             { Create Variable to hold file
             +                                   ( adds it to the total )
         LOOP
     LOOP
-    dup
+    dup dup dup
     (.) TEST-FILE-ID @ write-file drop          ( writes # alive cells to csv file )
     s" ," TEST-FILE-ID @ write-file drop
 
@@ -54,6 +54,11 @@ variable TEST-FILE-ID                             { Create Variable to hold file
     BORN @ (.) TEST-FILE-ID @ write-file drop
     s" ," TEST-FILE-ID @ write-file drop
 
-    KILLED @ (.) TEST-FILE-ID @ write-line drop
+    KILLED @ (.) TEST-FILE-ID @ write-file drop
+    s" ," TEST-FILE-ID @ write-file drop
+
+    AVG-X @ swap / (.) TEST-FILE-ID @ write-file drop
+    s" ," TEST-FILE-ID @ write-file drop
+    AVG-Y @ swap / (.) TEST-FILE-ID @ write-line drop
             
 ;
