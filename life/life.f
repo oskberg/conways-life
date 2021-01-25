@@ -22,10 +22,10 @@ INCLUDE     input-output.f
 
 : ACORN-200 cr
     ." ACORN setup "
-    200 200 ADD-CELL
-    201 201 ADD-CELL
-    201 202 ADD-CELL
-    201 203 ADD-CELL
+    200 200  ADD-CELL
+    201 201  ADD-CELL
+    201 202  ADD-CELL
+    201 203  ADD-CELL
     199 198  ADD-CELL
     201 198  ADD-CELL
     201 197  ADD-CELL
@@ -34,8 +34,8 @@ INCLUDE     input-output.f
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    400  GRID-X         !
-    400  GRID-Y         !
+    16  GRID-X         !
+    16  GRID-Y         !
     0    CURRENT-GEN    !
 
     ( create arrays )
@@ -85,7 +85,11 @@ INCLUDE     input-output.f
     \ 501 500 ADD-CELL
     \ 501 501 ADD-CELL
 
-    ACORN-200
+    \ ACORN-200
+
+    ( RANDOM START )
+    ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
+
 
     GRID-X @ bmp-x-size !
     GRID-Y @ bmp-y-size !
@@ -98,8 +102,8 @@ INCLUDE     input-output.f
 : SETUP-LIFE-SILENT ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    400  GRID-X         !
-    400  GRID-Y         !
+    100  GRID-X         !
+    100  GRID-Y         !
     0    CURRENT-GEN    !
 
     ( create arrays )
@@ -172,7 +176,7 @@ INCLUDE     input-output.f
 : COUNT-ALL-NEIGHBOURS ( -- )
     GRID-Y @ 0 DO
         GRID-X @ 0 DO
-            J I COUNT-NEIGHBOURS-NOWRAP     ( number of neighbours )
+            J I COUNT-NEIGHBOURS-WRAP     ( number of neighbours )
             I GRID-X @ * J + ARR-NEIGH @ +    ( location in arr-neigh )
             c!                               ( write to that location )
         LOOP
@@ -208,11 +212,10 @@ INCLUDE     input-output.f
 
 : RUN-LIFE
     SETUP-LIFE
-    depth . cr
     MAKE-TEST-FILE
-    depth . cr
     WRITE-FILE-HEADER
-    depth . cr
+    DRAW-LIFE
+    3000 ms
     BEGIN
         DRAW-LIFE
         SAVE-CELL-STATS
@@ -243,4 +246,4 @@ INCLUDE     input-output.f
 
 { RUNNING BIT }
 
-RUN-LIFE-SILENT
+RUN-LIFE
