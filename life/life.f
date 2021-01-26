@@ -17,9 +17,14 @@ INCLUDE     input-output.f
 
 { LIFE-SPECIFIC FUNCTIONS }
 
-: ADD-CELL ( row-index column-index -- )
+: ADD-CELL ( Y X -- )
     swap
     1 rot rot ARR-CELLS @ rot rot GRID-X @ * + + C!
+;
+
+: REMOVE-CELL ( Y X -- )
+    swap
+    0 rot rot ARR-CELLS @ rot rot GRID-X @ * + + C!
 ;
 
 : ACORN-400 cr
@@ -49,6 +54,15 @@ INCLUDE     input-output.f
     2 2 ADD-CELL
 ;
 
+: GLIDER-SETUP-NOT-CORNER cr 
+    ." GLIDER setup "
+    2 1 ADD-CELL 
+    3 2 ADD-CELL
+    1 3 ADD-CELL 
+    2 3 ADD-CELL 
+    3 3 ADD-CELL
+;
+
 : SPACESHIP-SETUP cr 
     ." SPACESHIP setup "
     GRID-Y @ 2 / 0 ADD-CELL
@@ -65,8 +79,8 @@ INCLUDE     input-output.f
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    32  GRID-X         !
-    16  GRID-Y         !
+    400  GRID-X         !
+    400  GRID-Y         !
     0    CURRENT-GEN    !
     0    AVG-X          !
     0    AVG-Y          !
@@ -118,13 +132,15 @@ INCLUDE     input-output.f
     \ 501 500 ADD-CELL
     \ 501 501 ADD-CELL
 
-    \ ACORN-400
+    ACORN-400
 
     \ WRAPPED-EDGES-TEST
 
     \ GLIDER-SETUP
 
-    SPACESHIP-SETUP
+    \ GLIDER-SETUP-NOT-CORNER
+
+    \ SPACESHIP-SETUP
 
     ( RANDOM START )
     \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
@@ -141,8 +157,8 @@ INCLUDE     input-output.f
 : SETUP-LIFE-SILENT ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    100  GRID-X         !
-    100  GRID-Y         !
+    16  GRID-X         !
+    16  GRID-Y         !
     0    CURRENT-GEN    !
 
     ( create arrays )
@@ -205,8 +221,8 @@ INCLUDE     input-output.f
                 GRID-X @ * + ARR-CELLS @ + c@           ( find the location in array )
                 +                                       ( add to total )
             THEN
-            LOOP
         LOOP
+    LOOP
     
     rot rot drop drop
 ;
@@ -215,7 +231,7 @@ INCLUDE     input-output.f
 : COUNT-ALL-NEIGHBOURS ( -- )
     GRID-Y @ 0 DO
         GRID-X @ 0 DO
-            I J COUNT-NEIGHBOURS-NOWRAP     ( number of neighbours )
+            I J COUNT-NEIGHBOURS-WRAP     ( number of neighbours )
             J GRID-X @ * I + ARR-NEIGH @ +    ( location in arr-neigh )
             c!                               ( write to that location )
         LOOP
@@ -255,6 +271,21 @@ INCLUDE     input-output.f
     drop
 ;
 
+: CLEAR-BUFFER ( #-LINES-CLEAR -- )
+GRID-X @ 0 DO
+    dup 0 DO
+        J I REMOVE-CELL
+        J GRID-X @ I - REMOVE-CELL
+    LOOP
+LOOP
+GRID-Y @ 0 DO
+    dup 0 DO
+        I J REMOVE-CELL
+        GRID-Y @ I - J REMOVE-CELL
+    LOOP
+LOOP
+;
+
 : RUN-LIFE
     SETUP-LIFE
     MAKE-TEST-FILE
@@ -282,13 +313,35 @@ INCLUDE     input-output.f
         SAVE-CELL-STATS
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
-        1 ms
+        1000 ms
         CURRENT-GEN @ 1 + CURRENT-GEN !
     LOOP
     ." tHIS IS THE END "
     CLOSE-TEST-FILE
 ;
 
+: RUN-LIFE-BUFFER 
+    SETUP-LIFE
+        MAKE-TEST-FILE
+        WRITE-FILE-HEADER
+        DRAW-LIFE
+        100 ms
+        BEGIN
+            DRAW-LIFE
+            SAVE-CELL-STATS
+            COUNT-ALL-NEIGHBOURS
+            UPDATE-LIFE-ARRS
+            CURRENT-GEN @ 10 MOD 0 = IF
+                10 CLEAR-BUFFER
+            THEN
+            1 ms
+            CURRENT-GEN @ 1 + CURRENT-GEN !
+            KEY?
+        UNTIL
+        bmp-window-handle @ DestroyWindow drop
+        CLOSE-TEST-FILE
+;
+
 { RUNNING BIT }
 
-RUN-LIFE
+RUN-LIFE-BUFFER
