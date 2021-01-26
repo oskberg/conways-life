@@ -22,15 +22,11 @@ INCLUDE     input-output.f
     1 rot rot ARR-CELLS @ rot rot GRID-X @ * + + C!
 ;
 
-: N-LINE ( N -- ) CR
+: N-LINE ( N -- )
     ( TODO: ERROR CHECK LENGTH OF N? )
-    \ GRID-X @ 2 / N 2 / +
-    \ DUP .
-    \ GRID-X @ 2 / N 2 / -
-    \ DUP . 
     dup
-     0 DO 
-        GRID-Y @ 2 / GRID-X @ 2 / 2 pick 2 / - I + DUP . ADD-CELL
+    0 DO 
+        GRID-Y @ 2 / GRID-X @ 2 / 2 pick 2 / - I + ADD-CELL
     LOOP
     drop
 ;
@@ -78,8 +74,8 @@ INCLUDE     input-output.f
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    16   GRID-X         !
-    16   GRID-Y         !
+    32  GRID-X         !
+    32  GRID-Y         !
     0    CURRENT-GEN    !
     0    AVG-X          !
     0    AVG-Y          !
@@ -135,11 +131,11 @@ INCLUDE     input-output.f
 
     \ WRAPPED-EDGES-TEST
 
-    \ GLIDER-SETUP
+    GLIDER-SETUP
 
     \ SPACESHIP-SETUP
 
-    5 N-LINE
+    \ 5 N-LINE
 
     ( RANDOM START )
     \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
@@ -153,11 +149,11 @@ INCLUDE     input-output.f
     bmp-window-handle !
 ; 
 
-: SETUP-LIFE-SILENT ( -- )
+: SETUP-LIFE-SILENT ( N -- ; -- ) 
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    100  GRID-X         !
-    100  GRID-Y         !
+    200  GRID-X         !
+    200  GRID-Y         !
     0    CURRENT-GEN    !
 
     ( create arrays )
@@ -169,8 +165,8 @@ INCLUDE     input-output.f
     ARR-NEIGH @ GRID-X @ GRID-Y @ * 0 FILL
     
     ( SET SEED HERE )
-
-    ACORN-400
+    \ N-LINE ( IF ACTIVE NEEDS INPUT)
+    \ ACORN-400
 ; 
 
 : SHOW-LIFE-ARRS ( -- )
@@ -230,8 +226,8 @@ INCLUDE     input-output.f
 : COUNT-ALL-NEIGHBOURS ( -- )
     GRID-Y @ 0 DO
         GRID-X @ 0 DO
-            J I COUNT-NEIGHBOURS-WRAP     ( number of neighbours )
-            I GRID-X @ * J + ARR-NEIGH @ +    ( location in arr-neigh )
+            I J COUNT-NEIGHBOURS-WRAP     ( number of neighbours )
+            J GRID-X @ * I + ARR-NEIGH @ +    ( location in arr-neigh )
             c!                               ( write to that location )
         LOOP
     LOOP
@@ -245,13 +241,18 @@ INCLUDE     input-output.f
     0 AVG-Y !
     GRID-Y @ 0 DO
         GRID-X @ 0 DO
-            I GRID-x @ * J + ARR-CELLS @ + c@   ( finds status of cell )
+            J GRID-x @ * I + ARR-CELLS @ + c@   ( finds status of cell )
             dup 
-            I GRID-x @ * J + ARR-NEIGH @ + c@   ( finds # of neighbours )
+            J GRID-x @ * I + ARR-NEIGH @ + c@   ( finds # of neighbours )
             LIFE-RULE                           ( does rules to leaves 1/0 on stack )
             dup 
-            I GRID-x @ * J + ARR-CELLS @ + c!   ( writes value to arr-cells )
-            1 pick 1 pick < IF BORN @ 1 + BORN !              ( if new status > old status cell has been born ) 
+            J GRID-x @ * I + ARR-CELLS @ + c!   ( writes value to arr-cells )
+            1 pick 1 pick < IF 
+                BORN @ 1 + BORN !              ( if new status > old status cell has been born ) 
+                ( check if at the border )
+                I GRID-X @ 1 - MOD 0 =
+                J GRID-Y @ 1 - MOD 0 =
+                or IF CR ." HIT EDGE " THEN
             THEN swap 1 pick > 
                 IF KILLED @ 1 + KILLED ! 
                 THEN                                    ( TODO: Could count alive cells here instead of wherever were doing that)
@@ -281,7 +282,7 @@ INCLUDE     input-output.f
         SAVE-CELL-STATS
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
-        100 ms
+        10 ms
         CURRENT-GEN @ 1 + CURRENT-GEN !
         KEY?
     UNTIL
@@ -289,12 +290,12 @@ INCLUDE     input-output.f
     CLOSE-TEST-FILE
 ;
 
-: RUN-LIFE-SILENT ( BREAKS FOR SOME REASON)
+: RUN-LIFE-SILENT
     SETUP-LIFE-SILENT
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
-    10 0 DO
-        SAVE-CELL-STATS
+    20 0 DO
+        SAVE-CELL-STATS-UNIQUE
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
         1 ms
@@ -304,6 +305,29 @@ INCLUDE     input-output.f
     CLOSE-TEST-FILE
 ;
 
+: LINE-INVESTIGATION 
+    SETUP-LIFE-SILENT
+    MAKE-TEST-FILE
+    WRITE-FILE-HEADER
+    41 1 DO 
+        ARR-CELLS @ GRID-X @ GRID-Y @ * 0 FILL
+        ARR-NEIGH @ GRID-X @ GRID-Y @ * 0 FILL  
+        I N-LINE
+
+        I 1000 *  CURRENT-GEN    !
+        
+        200 0 DO
+            SAVE-CELL-STATS-UNIQUE
+            COUNT-ALL-NEIGHBOURS
+            UPDATE-LIFE-ARRS
+            1 ms
+            CURRENT-GEN @ 1 + CURRENT-GEN !
+        LOOP
+    LOOP 
+
+;
 { RUNNING BIT }
 
-RUN-LIFE
+\ RUN-LIFE
+LINE-INVESTIGATION
+
