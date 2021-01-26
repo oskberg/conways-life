@@ -65,8 +65,8 @@ INCLUDE     input-output.f
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    52   GRID-X         !
-    52   GRID-Y         !
+    100  GRID-X         !
+    100  GRID-Y         !
     0    CURRENT-GEN    !
     0    AVG-X          !
     0    AVG-Y          !
@@ -122,9 +122,9 @@ INCLUDE     input-output.f
 
     \ WRAPPED-EDGES-TEST
 
-    GLIDER-SETUP
+    \ GLIDER-SETUP
 
-    \ SPACESHIP-SETUP
+    SPACESHIP-SETUP
 
     ( RANDOM START )
     \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
@@ -241,8 +241,8 @@ INCLUDE     input-output.f
                 IF KILLED @ 1 + KILLED ! 
                 THEN                                    ( TODO: Could count alive cells here instead of wherever were doing that)
                     1 = if                               ( if cell is alive add x & y values to averages )
-                        AVG-X @ I + AVG-X !             ( i think that x and y are swapped )
-                        AVG-Y @ J + AVG-Y !
+                        AVG-X @ J + AVG-X !             ( i think that x and y are swapped )
+                        AVG-Y @ I + AVG-Y !
                     then
         LOOP
     LOOP
