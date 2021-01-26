@@ -22,6 +22,19 @@ INCLUDE     input-output.f
     1 rot rot ARR-CELLS @ rot rot GRID-X @ * + + C!
 ;
 
+: N-LINE ( N -- ) CR
+    ( TODO: ERROR CHECK LENGTH OF N? )
+    \ GRID-X @ 2 / N 2 / +
+    \ DUP .
+    \ GRID-X @ 2 / N 2 / -
+    \ DUP . 
+    dup
+     0 DO 
+        GRID-Y @ 2 / GRID-X @ 2 / 2 pick 2 / - I + DUP . ADD-CELL
+    LOOP
+    drop
+;
+
 : ACORN-400 cr
     ." ACORN setup "
     200 200  ADD-CELL
@@ -65,7 +78,7 @@ INCLUDE     input-output.f
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    32   GRID-X         !
+    16   GRID-X         !
     16   GRID-Y         !
     0    CURRENT-GEN    !
     0    AVG-X          !
@@ -124,7 +137,9 @@ INCLUDE     input-output.f
 
     \ GLIDER-SETUP
 
-    SPACESHIP-SETUP
+    \ SPACESHIP-SETUP
+
+    5 N-LINE
 
     ( RANDOM START )
     \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
@@ -260,7 +275,7 @@ INCLUDE     input-output.f
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
     DRAW-LIFE
-    100 ms
+    1000 ms
     BEGIN
         DRAW-LIFE
         SAVE-CELL-STATS

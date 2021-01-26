@@ -57,8 +57,14 @@ variable TEST-FILE-ID                             { Create Variable to hold file
     KILLED @ (.) TEST-FILE-ID @ write-file drop
     s" ," TEST-FILE-ID @ write-file drop
 
-    AVG-X @ swap / (.) TEST-FILE-ID @ write-file drop
-    s" ," TEST-FILE-ID @ write-file drop
-    AVG-Y @ swap / (.) TEST-FILE-ID @ write-line drop
-            
+    dup 0 = IF DROP DROP ." No alive cells "
+      0 (.) TEST-FILE-ID @ write-file drop
+      s" ," TEST-FILE-ID @ write-file drop
+      0 (.) TEST-FILE-ID @ write-line drop
+    ELSE 
+      AVG-X @ swap / (.) TEST-FILE-ID @ write-file drop
+      s" ," TEST-FILE-ID @ write-file drop
+      AVG-Y @ swap / (.) TEST-FILE-ID @ write-line drop
+    THEN 
+    \ CR .S
 ;
