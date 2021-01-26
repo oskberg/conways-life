@@ -9,6 +9,7 @@ VARIABLE    BORN
 VARIABLE    KILLED
 VARIABLE    AVG-X 
 VARIABLE    AVG-Y 
+VARIABLE    BUFFER 
 
 { IMPORTS }
 INCLUDE     words-list.f
@@ -88,11 +89,11 @@ INCLUDE     input-output.f
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    32  GRID-X         !
-    32  GRID-Y         !
-    0    CURRENT-GEN    !
-    0    AVG-X          !
-    0    AVG-Y          !
+    400   BUFFER @ 2 * +  GRID-X     !
+    400   BUFFER @ 2 * +  GRID-Y     !
+    0    CURRENT-GEN            !
+    0    AVG-X                  !
+    0    AVG-Y                  !
 
     ( create arrays )
     GRID-X @ GRID-Y @ CREATE-X-BY-Y ARR-CELLS ! 
@@ -145,7 +146,7 @@ INCLUDE     input-output.f
 
     \ WRAPPED-EDGES-TEST
 
-    GLIDER-SETUP
+    \ GLIDER-SETUP
 
     \ GLIDER-SETUP-NOT-CORNER
 
@@ -168,9 +169,9 @@ INCLUDE     input-output.f
 : SETUP-LIFE-SILENT ( N -- ; -- ) 
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    200  GRID-X         !
-    200  GRID-Y         !
-    0    CURRENT-GEN    !
+    400   BUFFER @ 2 * +  GRID-X        !
+    400   BUFFER @ 2 * +  GRID-Y        !
+    0    CURRENT-GEN                    !
 
     ( create arrays )
     GRID-X @ GRID-Y @ CREATE-X-BY-Y ARR-CELLS ! 
@@ -287,15 +288,15 @@ INCLUDE     input-output.f
     drop
 ;
 
-: CLEAR-BUFFER ( #-LINES-CLEAR -- )
+: CLEAR-BUFFER ( -- )
 GRID-X @ 0 DO
-    dup 0 DO
+    BUFFER @ 0 DO
         J I REMOVE-CELL
         J GRID-X @ I - REMOVE-CELL
     LOOP
 LOOP
 GRID-Y @ 0 DO
-    dup 0 DO
+    BUFFER @ 0 DO
         I J REMOVE-CELL
         GRID-Y @ I - J REMOVE-CELL
     LOOP
@@ -303,6 +304,7 @@ LOOP
 ;
 
 : RUN-LIFE
+    0 BUFFER !
     SETUP-LIFE
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
@@ -313,7 +315,7 @@ LOOP
         SAVE-CELL-STATS
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
-        10 ms
+        1 ms
         CURRENT-GEN @ 1 + CURRENT-GEN !
         KEY?
     UNTIL
@@ -322,6 +324,7 @@ LOOP
 ;
 
 : RUN-LIFE-SILENT
+    0 BUFFER !
     SETUP-LIFE-SILENT
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
@@ -337,6 +340,7 @@ LOOP
 ;
 
 : RUN-LIFE-BUFFER 
+    2 BUFFER !
     SETUP-LIFE
         MAKE-TEST-FILE
         WRITE-FILE-HEADER
@@ -347,8 +351,8 @@ LOOP
             SAVE-CELL-STATS
             COUNT-ALL-NEIGHBOURS
             UPDATE-LIFE-ARRS
-            CURRENT-GEN @ 10 MOD 0 = IF
-                10 CLEAR-BUFFER
+            CURRENT-GEN @ BUFFER @ 5 * MOD 0 = IF
+                CLEAR-BUFFER
             THEN
             1 ms
             CURRENT-GEN @ 1 + CURRENT-GEN !
@@ -359,6 +363,7 @@ LOOP
 ;
 
 : LINE-INVESTIGATION 
+    0 BUFFER !
     SETUP-LIFE-SILENT
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
@@ -381,8 +386,8 @@ LOOP
 ;
 { RUNNING BIT }
 
-\ RUN-LIFE
+RUN-LIFE
 \ RUN-LIFE-SILENT
 \ RUN-LIFE-BUFFER
-LINE-INVESTIGATION
+\ LINE-INVESTIGATION
 
