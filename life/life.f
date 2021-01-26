@@ -65,8 +65,8 @@ INCLUDE     input-output.f
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    100  GRID-X         !
-    100  GRID-Y         !
+    32  GRID-X         !
+    16  GRID-Y         !
     0    CURRENT-GEN    !
     0    AVG-X          !
     0    AVG-Y          !
@@ -215,8 +215,8 @@ INCLUDE     input-output.f
 : COUNT-ALL-NEIGHBOURS ( -- )
     GRID-Y @ 0 DO
         GRID-X @ 0 DO
-            J I COUNT-NEIGHBOURS-WRAP     ( number of neighbours )
-            I GRID-X @ * J + ARR-NEIGH @ +    ( location in arr-neigh )
+            I J COUNT-NEIGHBOURS-NOWRAP     ( number of neighbours )
+            J GRID-X @ * I + ARR-NEIGH @ +    ( location in arr-neigh )
             c!                               ( write to that location )
         LOOP
     LOOP
@@ -230,19 +230,19 @@ INCLUDE     input-output.f
     0 AVG-Y !
     GRID-Y @ 0 DO
         GRID-X @ 0 DO
-            I GRID-x @ * J + ARR-CELLS @ + c@   ( finds status of cell )
+            J GRID-x @ * I + ARR-CELLS @ + c@   ( finds status of cell )
             dup 
-            I GRID-x @ * J + ARR-NEIGH @ + c@   ( finds # of neighbours )
+            J GRID-x @ * I + ARR-NEIGH @ + c@   ( finds # of neighbours )
             LIFE-RULE                           ( does rules to leaves 1/0 on stack )
             dup 
-            I GRID-x @ * J + ARR-CELLS @ + c!   ( writes value to arr-cells )
+            J GRID-x @ * I + ARR-CELLS @ + c!   ( writes value to arr-cells )
             1 pick 1 pick < IF BORN @ 1 + BORN !              ( if new status > old status cell has been born ) 
             THEN swap 1 pick > 
                 IF KILLED @ 1 + KILLED ! 
                 THEN                                    ( TODO: Could count alive cells here instead of wherever were doing that)
                     1 = if                               ( if cell is alive add x & y values to averages )
-                        AVG-X @ J + AVG-X !             ( i think that x and y are swapped )
-                        AVG-Y @ I + AVG-Y !
+                        AVG-X @ I + AVG-X !             ( i think that x and y are swapped )
+                        AVG-Y @ J + AVG-Y !
                     then
         LOOP
     LOOP
