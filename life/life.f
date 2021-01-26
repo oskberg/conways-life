@@ -65,8 +65,8 @@ INCLUDE     input-output.f
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    100  GRID-X         !
-    100  GRID-Y         !
+    52   GRID-X         !
+    52   GRID-Y         !
     0    CURRENT-GEN    !
     0    AVG-X          !
     0    AVG-Y          !
@@ -122,9 +122,9 @@ INCLUDE     input-output.f
 
     \ WRAPPED-EDGES-TEST
 
-    \ GLIDER-SETUP
+    GLIDER-SETUP
 
-    SPACESHIP-SETUP
+    \ SPACESHIP-SETUP
 
     ( RANDOM START )
     \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
@@ -234,14 +234,14 @@ INCLUDE     input-output.f
             dup 
             I GRID-x @ * J + ARR-NEIGH @ + c@   ( finds # of neighbours )
             LIFE-RULE                           ( does rules to leaves 1/0 on stack )
-            dup dup
+            dup 
             I GRID-x @ * J + ARR-CELLS @ + c!   ( writes value to arr-cells )
             1 pick 1 pick < IF BORN @ 1 + BORN !              ( if new status > old status cell has been born ) 
-            THEN > 
+            THEN swap 1 pick > 
                 IF KILLED @ 1 + KILLED ! 
-                THEN 
+                THEN                                    ( TODO: Could count alive cells here instead of wherever were doing that)
                     1 = if                               ( if cell is alive add x & y values to averages )
-                        AVG-X @ I + AVG-X !
+                        AVG-X @ I + AVG-X !             ( i think that x and y are swapped )
                         AVG-Y @ J + AVG-Y !
                     then
         LOOP
