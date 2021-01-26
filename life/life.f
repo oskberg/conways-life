@@ -240,10 +240,10 @@ INCLUDE     input-output.f
             THEN > 
                 IF KILLED @ 1 + KILLED ! 
                 THEN 
-            1 = if                               ( if cell is alive add x & y values to averages )
-                AVG-X @ I + AVG-X !
-                AVG-Y @ J + AVG-Y !
-            then
+                    1 = if                               ( if cell is alive add x & y values to averages )
+                        AVG-X @ I + AVG-X !
+                        AVG-Y @ J + AVG-Y !
+                    then
         LOOP
     LOOP
 ;
