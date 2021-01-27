@@ -9,6 +9,7 @@ VARIABLE    BORN
 VARIABLE    KILLED
 VARIABLE    AVG-X 
 VARIABLE    AVG-Y 
+VARIABLE    BUFFER 
 
 VARIABLE    STABLE-GENS
 
@@ -19,9 +20,14 @@ INCLUDE     input-output.f
 
 { LIFE-SPECIFIC FUNCTIONS }
 
-: ADD-CELL ( row-index column-index -- )
+: ADD-CELL ( Y X -- )
     swap
     1 rot rot ARR-CELLS @ rot rot GRID-X @ * + + C!
+;
+
+: REMOVE-CELL ( Y X -- )
+    swap
+    0 rot rot ARR-CELLS @ rot rot GRID-X @ * + + C!
 ;
 
 : N-LINE ( N -- )
@@ -58,6 +64,15 @@ INCLUDE     input-output.f
     0 2 ADD-CELL 
     1 2 ADD-CELL 
     2 2 ADD-CELL
+;
+
+: GLIDER-SETUP-NOT-CORNER cr 
+    ." GLIDER setup "
+    2 1 ADD-CELL 
+    3 2 ADD-CELL
+    1 3 ADD-CELL 
+    2 3 ADD-CELL 
+    3 3 ADD-CELL
 ;
 
 : SPACESHIP-SETUP cr 
@@ -202,8 +217,9 @@ INCLUDE     input-output.f
                 GRID-X @ * + ARR-CELLS @ + c@           ( find the location in array )
                 +                                       ( add to total )
             THEN
-            LOOP
         LOOP
+    LOOP
+    
     rot rot drop drop
 ;
 
@@ -256,7 +272,23 @@ INCLUDE     input-output.f
     drop
 ;
 
+: CLEAR-BUFFER ( -- )
+GRID-X @ 0 DO
+    BUFFER @ 0 DO
+        J I REMOVE-CELL
+        J GRID-X @ I - REMOVE-CELL
+    LOOP
+LOOP
+GRID-Y @ 0 DO
+    BUFFER @ 0 DO
+        I J REMOVE-CELL
+        GRID-Y @ I - J REMOVE-CELL
+    LOOP
+LOOP
+;
+
 : RUN-LIFE
+    0 BUFFER !
     SETUP-LIFE
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
@@ -267,7 +299,7 @@ INCLUDE     input-output.f
         SAVE-CELL-STATS
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
-        10 ms
+        1 ms
         CURRENT-GEN @ 1 + CURRENT-GEN !
         KEY?
     UNTIL
@@ -276,6 +308,7 @@ INCLUDE     input-output.f
 ;
 
 : RUN-LIFE-SILENT
+    0 BUFFER !
     SETUP-LIFE-SILENT
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
@@ -290,9 +323,34 @@ INCLUDE     input-output.f
     CLOSE-TEST-FILE
 ;
 
+: RUN-LIFE-BUFFER 
+    2 BUFFER !
+    SETUP-LIFE
+        MAKE-TEST-FILE
+        WRITE-FILE-HEADER
+        DRAW-LIFE
+        100 ms
+        BEGIN
+            DRAW-LIFE
+            SAVE-CELL-STATS
+            COUNT-ALL-NEIGHBOURS
+            UPDATE-LIFE-ARRS
+            CURRENT-GEN @ BUFFER @ 5 * MOD 0 = IF
+                CLEAR-BUFFER
+            THEN
+            1 ms
+            CURRENT-GEN @ 1 + CURRENT-GEN !
+            KEY?
+        UNTIL
+        bmp-window-handle @ DestroyWindow drop
+        CLOSE-TEST-FILE
+;
+
+
 VARIABLE COUNTER
 0 COUNTER !
 : LINE-INVESTIGATION 
+    0 BUFFER !
     SETUP-LIFE-SILENT
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
@@ -325,6 +383,8 @@ VARIABLE COUNTER
 
 { RUNNING BIT }
 
-\ RUN-LIFE
-LINE-INVESTIGATION
+RUN-LIFE
+\ RUN-LIFE-SILENT
+\ RUN-LIFE-BUFFER
+\ LINE-INVESTIGATION
 
