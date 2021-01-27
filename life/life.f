@@ -10,6 +10,8 @@ VARIABLE    KILLED
 VARIABLE    AVG-X 
 VARIABLE    AVG-Y 
 
+VARIABLE    STABLE-GENS
+
 { IMPORTS }
 INCLUDE     words-list.f
 INCLUDE     GRAPHICS_TEST.F
@@ -77,6 +79,7 @@ INCLUDE     input-output.f
     32  GRID-X         !
     32  GRID-Y         !
     0    CURRENT-GEN    !
+    0    STABLE-GENS    !
     0    AVG-X          !
     0    AVG-Y          !
 
@@ -90,19 +93,6 @@ INCLUDE     input-output.f
     
     ( SET SEED HERE )
 
-    ( SIMPLE 3 CELL LINE IN THE MIDDLE, FLOORED OBVIOUSLY )
-    \ 1 ARR-CELLS @ GRID-X @ GRID-Y @ 2 / * GRID-X @ 2 / + + C!
-    \ 1 ARR-CELLS @ GRID-X @ GRID-Y @ 2 / * GRID-X @ 2 / + + 1 + C!
-    \ 1 ARR-CELLS @ GRID-X @ GRID-Y @ 2 / * GRID-X @ 2 / + + 1 - C!
-
-    ( 1 0 alive )
-    \ 1 ARR-CELLS @ 1 + C!
-    \ 1 ARR-CELLS @ 7 + 3 GRID-X @ * + C!
-
-    \ 1 ARR-CELLS @ 1 GRID-X @ * + 3 + C!
-    \ 1 ARR-CELLS @ 2 GRID-X @ * + 2 + C!
-    \ 1 ARR-CELLS @ 2 GRID-X @ * + 4 + C!
-    \ 1 ARR-CELLS @ 3 GRID-X @ * + 3 + C!
     ( methuselah 1 )
     \ 499 500 ADD-CELL
     \ 499 501 ADD-CELL
@@ -117,7 +107,6 @@ INCLUDE     input-output.f
     \ 49 49 ADD-CELL
     \ 50 49 ADD-CELL
     \ 51 49 ADD-CELL
-
     \ ( methuselah 5 )
     \ 499 500 ADD-CELL
     \ 499 501 ADD-CELL
@@ -128,18 +117,12 @@ INCLUDE     input-output.f
     \ 501 501 ADD-CELL
 
     \ ACORN-400
-
     \ WRAPPED-EDGES-TEST
-
     GLIDER-SETUP
-
     \ SPACESHIP-SETUP
-
     \ 5 N-LINE
-
     ( RANDOM START )
     \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
-
 
     GRID-X @ bmp-x-size !
     GRID-Y @ bmp-y-size !
@@ -155,6 +138,9 @@ INCLUDE     input-output.f
     200  GRID-X         !
     200  GRID-Y         !
     0    CURRENT-GEN    !
+    0    STABLE-GENS    !
+    0    AVG-X          !
+    0    AVG-Y          !
 
     ( create arrays )
     GRID-X @ GRID-Y @ CREATE-X-BY-Y ARR-CELLS ! 
@@ -218,7 +204,6 @@ INCLUDE     input-output.f
             THEN
             LOOP
         LOOP
-    
     rot rot drop drop
 ;
 
@@ -298,34 +283,46 @@ INCLUDE     input-output.f
         SAVE-CELL-STATS-UNIQUE
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
-        1 ms
+        \ 1 ms
         CURRENT-GEN @ 1 + CURRENT-GEN !
     LOOP
     ." tHIS IS THE END "
     CLOSE-TEST-FILE
 ;
 
+VARIABLE COUNTER
+0 COUNTER !
 : LINE-INVESTIGATION 
     SETUP-LIFE-SILENT
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
-    41 1 DO 
+    82 1 DO 
+    CR I . CR
         ARR-CELLS @ GRID-X @ GRID-Y @ * 0 FILL
         ARR-NEIGH @ GRID-X @ GRID-Y @ * 0 FILL  
         I N-LINE
+        I 10000 *  CURRENT-GEN    !
+        0 STABLE-GENS !
+        SAVE-CELL-STATS-UNIQUE drop
 
-        I 1000 *  CURRENT-GEN    !
-        
-        200 0 DO
-            SAVE-CELL-STATS-UNIQUE
+        0 COUNTER !
+        BEGIN
             COUNT-ALL-NEIGHBOURS
             UPDATE-LIFE-ARRS
-            1 ms
+            \ 1 ms
             CURRENT-GEN @ 1 + CURRENT-GEN !
-        LOOP
+            COUNTER @ 1 + COUNTER !
+            SAVE-CELL-STATS-UNIQUE dup IF ." break " then
+            BORN @ KILLED @ = IF
+                STABLE-GENS @ 1 + STABLE-GENS !
+            ELSE 
+                0 STABLE-GENS !
+            THEN 
+                STABLE-GENS @ 100 > OR COUNTER @ 1000 > OR
+        UNTIL
     LOOP 
-
 ;
+
 { RUNNING BIT }
 
 \ RUN-LIFE

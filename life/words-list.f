@@ -57,7 +57,7 @@ LOOP ;
 * + + c@ ;
 
 : ARRAY-W-! { n1 ARRAY-LOCATION X Y WIDHT -- }
-* + + c! ;
+* + + c! ; 
 
 { ARRAY-LOCATION TOTAL-SIZE }
 { USES THE RND FUCTION FROM GRAPHICS_TEST.F }
