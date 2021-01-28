@@ -2,25 +2,15 @@ variable TEST-FILE-ID                             { Create Variable to hold file
 
 
 : MAKE-TEST-FILE                                  { Create a test file to read / write to  }
-<<<<<<< HEAD
-  s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\LINES-break-140-3.csv" r/w create-file drop  { Create the file                        } 
+  s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\210128-lines-4.csv" r/w create-file drop  { Create the file                        } 
   \ s" C:\Users\lukem\OneDrive - Imperial College London\Year 3\Labs\Cycle 1\Proper Code\conways-life\output\cell_stats.csv" r/w create-file drop  { Create the file                        } 
-=======
-  \ s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\LINES-LONG.csv" r/w create-file drop  { Create the file                        } 
-  s" C:\Users\lukem\OneDrive - Imperial College London\Year 3\Labs\Cycle 1\Proper Code\conways-life\output\BUFFER-TEST.csv" r/w create-file drop  { Create the file                        } 
->>>>>>> 92a022a9a8b3bac602c6e410496aa5bf24dc9932
   TEST-FILE-ID !                                  { Store file handle for later use        }
 ;
 
  
 : OPEN-TEST-FILE                                  { Open the file for read/write access    }
-<<<<<<< HEAD
-  s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\LINES-break-140-3.csv" r/w open-file drop    { Not needed if we have just created     }
+  s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\210128-lines-4.csv" r/w open-file drop    { Not needed if we have just created     }
   \ s" C:\Users\lukem\OneDrive - Imperial College London\Year 3\Labs\Cycle 1\Proper Code\conways-life\output\cell_stats.csv" r/w open-file drop    { Not needed if we have just created     }
-=======
-  \ s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\LINES-LONG.csv" r/w open-file drop    { Not needed if we have just created     }
-  s" C:\Users\lukem\OneDrive - Imperial College London\Year 3\Labs\Cycle 1\Proper Code\conways-life\output\BUFFER-TEST.csv" r/w open-file drop    { Not needed if we have just created     }
->>>>>>> 92a022a9a8b3bac602c6e410496aa5bf24dc9932
   TEST-FILE-ID !                                  { file.                                  }
 ;
 
