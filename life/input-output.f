@@ -2,15 +2,15 @@ variable TEST-FILE-ID                             { Create Variable to hold file
 
 
 : MAKE-TEST-FILE                                  { Create a test file to read / write to  }
-  \ s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\LINES-LONG.csv" r/w create-file drop  { Create the file                        } 
-  s" C:\Users\lukem\OneDrive - Imperial College London\Year 3\Labs\Cycle 1\Proper Code\conways-life\output\BUFFER-TEST.csv" r/w create-file drop  { Create the file                        } 
+  s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\LINES-break-140-3.csv" r/w create-file drop  { Create the file                        } 
+  \ s" C:\Users\lukem\OneDrive - Imperial College London\Year 3\Labs\Cycle 1\Proper Code\conways-life\output\cell_stats.csv" r/w create-file drop  { Create the file                        } 
   TEST-FILE-ID !                                  { Store file handle for later use        }
 ;
 
  
 : OPEN-TEST-FILE                                  { Open the file for read/write access    }
-  \ s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\LINES-LONG.csv" r/w open-file drop    { Not needed if we have just created     }
-  s" C:\Users\lukem\OneDrive - Imperial College London\Year 3\Labs\Cycle 1\Proper Code\conways-life\output\BUFFER-TEST.csv" r/w open-file drop    { Not needed if we have just created     }
+  s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\LINES-break-140-3.csv" r/w open-file drop    { Not needed if we have just created     }
+  \ s" C:\Users\lukem\OneDrive - Imperial College London\Year 3\Labs\Cycle 1\Proper Code\conways-life\output\cell_stats.csv" r/w open-file drop    { Not needed if we have just created     }
   TEST-FILE-ID !                                  { file.                                  }
 ;
 
@@ -71,7 +71,7 @@ variable TEST-FILE-ID                             { Create Variable to hold file
 ;
 
 ( writes the # of alive and dead cells to a csv file in output )
-: SAVE-CELL-STATS-UNIQUE ( -- )
+: SAVE-CELL-STATS-UNIQUE ( -- stable )
     CURRENT-GEN @ (.) TEST-FILE-ID @ write-file drop  ( writes the current generation )
     s" ," TEST-FILE-ID @ write-file drop              
 
@@ -102,10 +102,11 @@ variable TEST-FILE-ID                             { Create Variable to hold file
       0 (.) TEST-FILE-ID @ write-file drop
       s" ," TEST-FILE-ID @ write-file drop
       0 (.) TEST-FILE-ID @ write-line drop
+      TRUE
     ELSE 
       AVG-X @ swap / (.) TEST-FILE-ID @ write-file drop
       s" ," TEST-FILE-ID @ write-file drop
       AVG-Y @ swap / (.) TEST-FILE-ID @ write-line drop
+      FALSE
     THEN 
-    \ CR .S
 ;

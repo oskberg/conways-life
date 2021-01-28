@@ -57,7 +57,7 @@ LOOP ;
 * + + c@ ;
 
 : ARRAY-W-! { n1 ARRAY-LOCATION X Y WIDHT -- }
-* + + c! ;
+* + + c! ; 
 
 { ARRAY-LOCATION TOTAL-SIZE }
 { USES THE RND FUCTION FROM GRAPHICS_TEST.F }
@@ -66,6 +66,20 @@ LOOP ;
 0 DO
     2 rnd over I + ! 
 LOOP ;
+
+: ADD-RND-CELL  ( Location-in-array -- )
+    2 rnd swap !
+;
+
+( Fills the central 50x50 grid with random cells )
+: FILL-50-RND 
+GRID-X @ 2 / 25 - dup 50 + swap DO
+    GRID-Y @ 2 / 25 - dup 50 + swap DO
+        GRID-Y @ I * J + ARR-CELLS @ +
+        ADD-RND-CELL
+    LOOP
+LOOP
+;
 
 { returns 1 if alive and 0 if dead }
 : LIFE-RULE ( status neighbours -- new-status )
