@@ -97,21 +97,12 @@ INCLUDE     input-output.f
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-<<<<<<< HEAD
-    1000    GRID-X         !
-    1000    GRID-Y         !
-    0    CURRENT-GEN    !
-    0    STABLE-GENS    !
-    0    AVG-X          !
-    0    AVG-Y          !
-=======
     100  BUFFER @ 2 * +  GRID-X     !
     100  BUFFER @ 2 * +  GRID-Y     !
     0    CURRENT-GEN            !
     0    STABLE-GENS             !
     0    AVG-X                  !
     0    AVG-Y                  !
->>>>>>> cd27aaecc5af21052b88a0485cc75202ac892b78
 
     GRID-X @ MAX-X !
     GRID-Y @ MAX-Y !
@@ -158,7 +149,7 @@ INCLUDE     input-output.f
 
     \ GLIDER-SETUP
 
-    GLIDER-SETUP-NOT-CORNER
+    \ GLIDER-SETUP-NOT-CORNER
 
     \ SPACESHIP-SETUP
 
@@ -166,7 +157,7 @@ INCLUDE     input-output.f
     ( RANDOM START )
     \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
 
-    FILL-50-RND
+    FILL-50-RND         ( CREATES A 50 X 50 RANDOM GRID IN MIDDLE)
 
 
     GRID-X @ bmp-x-size !
@@ -180,13 +171,8 @@ INCLUDE     input-output.f
 : SETUP-LIFE-SILENT ( N -- ; -- ) 
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-<<<<<<< HEAD
-    1000  GRID-X         !
-    1000  GRID-Y         !
-=======
-    1000  BUFFER @ 2 * +  GRID-X        !
-    1000  BUFFER @ 2 * +  GRID-Y        !
->>>>>>> cd27aaecc5af21052b88a0485cc75202ac892b78
+    1000  GRID-X        !
+    1000  GRID-Y        !
     0    CURRENT-GEN    !
     0    STABLE-GENS    !
     0    AVG-X          !
@@ -280,9 +266,26 @@ INCLUDE     input-output.f
     LOOP
 ;
 
+VARIABLE UPDATE-COUNT
+: COUNT-S-NEIGHBOURS ( S -- )
+    0 UPDATE-COUNT !
+    GRID-Y @ 0 DO
+        GRID-X @ 0 DO
+            dup 100 RND > IF ( UPDATE ) 
+                I J COUNT-NEIGHBOURS-WRAP         ( number of neighbours )
+                J GRID-X @ * I + ARR-NEIGH @ +    ( location in arr-neigh )
+                c!                               ( write to that location )
+                UPDATE-COUNT @ 1+ UPDATE-COUNT !
+            THEN
+        LOOP
+    LOOP
+    drop
+    CR UPDATE-COUNT @ .
+;
+
 ( THIS SHIT AINT WORKING CHEIF  )
 : COUNT-ALL-NEIGHBOURS-OPT ( -- )
-    \ CR MAX-Y @ . MIN-Y @ . MAX-X @ . MIN-X @ . CR
+    CR MAX-Y @ . MIN-Y @ . MAX-X @ . MIN-X @ . CR
     MAX-Y @
     MIN-Y @ DO
         MAX-X @
@@ -349,10 +352,10 @@ VARIABLE HIT-EDGE
                         0 MIN-Y !
                 ELSE
                     ( GET MIN AND MAX X AND Y )
-                    I MIN-X @ <= IF I 1- MIN-X ! THEN
-                    J MIN-Y @ <= IF J 1- MIN-Y ! THEN
-                    I MAX-X @ >= IF I 1+ 1+ MAX-X ! THEN
-                    J MAX-Y @ >= IF J 1+ 1+ MAX-Y ! THEN
+                    I MIN-X @ <= IF I 1 - MIN-X ! THEN
+                    J MIN-Y @ <= IF J 1 - MIN-Y ! THEN
+                    I MAX-X @ >= IF I 1 + MAX-X ! THEN
+                    J MAX-Y @ >= IF J 1 + MAX-Y ! THEN
                 THEN
             then
         LOOP
@@ -378,7 +381,10 @@ VARIABLE HIT-EDGE
                 ( check if at the border )
                 I GRID-X @ 1 - MOD 0 =
                 J GRID-Y @ 1 - MOD 0 =
-                or IF CR CURRENT-GEN @ . ." HIT EDGE " THEN
+                or IF 
+                    \ CR CURRENT-GEN @ . ." HIT EDGE " 
+                    0 DROP 
+                THEN
             THEN swap 1 pick > 
                 IF KILLED @ 1 + KILLED ! 
                 THEN                                    ( TODO: Could count alive cells here instead of wherever were doing that)
@@ -419,14 +425,11 @@ VARIABLE HIT-EDGE
     WRITE-FILE-HEADER
     DRAW-LIFE
     1000 ms
-    \ DRAW-LIFE
-    \ 10000 ms
-    
     BEGIN
         DRAW-LIFE
         SAVE-CELL-STATS
-        COUNT-ALL-NEIGHBOURS-OPT
-        UPDATE-LIFE-ARRS-OPT
+        COUNT-ALL-NEIGHBOURS
+        UPDATE-LIFE-ARRS
         \ 1000 ms
         CURRENT-GEN @ 1 + CURRENT-GEN !
         KEY?
@@ -435,16 +438,36 @@ VARIABLE HIT-EDGE
     CLOSE-TEST-FILE
 ;
 
-: RUN-LIFE-SILENT
+: RUN-LIFE-S
     0 BUFFER !
+    SETUP-LIFE
+    MAKE-TEST-FILE
+    WRITE-FILE-HEADER
+    DRAW-LIFE
+    1000 ms
+    COUNT-ALL-NEIGHBOURS
+    BEGIN
+        DRAW-LIFE
+        SAVE-CELL-STATS
+        80 COUNT-S-NEIGHBOURS
+        UPDATE-LIFE-ARRS
+        10 ms
+        CURRENT-GEN @ 1 + CURRENT-GEN !
+        KEY?
+    UNTIL
+    bmp-window-handle @ DestroyWindow drop
+    CLOSE-TEST-FILE
+;
+
+: RUN-LIFE-SILENT
     SETUP-LIFE-SILENT
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
     5000 0 DO
         SAVE-CELL-STATS-UNIQUE
-        COUNT-ALL-NEIGHBOURS-OPT
-        UPDATE-LIFE-ARRS-OPT
-        10 ms
+        COUNT-ALL-NEIGHBOURS
+        UPDATE-LIFE-ARRS
+        1 ms
         CURRENT-GEN @ 1 + CURRENT-GEN !
     LOOP
     ." tHIS IS THE END "
@@ -454,10 +477,11 @@ VARIABLE HIT-EDGE
 : RUN-LIFE-BUFFER 
     2 BUFFER !
     SETUP-LIFE
-        MAKE-TEST-FILE
-        WRITE-FILE-HEADER
-        DRAW-LIFE
-        1000 ms
+    MAKE-TEST-FILE
+    WRITE-FILE-HEADER
+    DRAW-LIFE
+    1000 ms
+    BEGIN
         DRAW-LIFE
         SAVE-CELL-STATS
         COUNT-ALL-NEIGHBOURS
@@ -544,15 +568,12 @@ VARIABLE COUNTER
 \ RUN-LIFE-SILENT
 \ RUN-LIFE-BUFFER
 \ LINE-INVESTIGATION
-<<<<<<< HEAD
+RUN-LIFE-S
 
-TIME&DATE DROP DROP DROP 60 * + 60 * + START-TIME !
+\ TIME&DATE DROP DROP DROP 60 * + 60 * + START-TIME !
 
-RUN-LIFE-SILENT
+\ RUN-LIFE-SILENT
 
-TIME&DATE DROP DROP DROP 60 * + 60 * + END-TIME !
-CR
-END-TIME @ START-TIME @ - .
-=======
-GRID-SIZE-INVESTIGATION
->>>>>>> cd27aaecc5af21052b88a0485cc75202ac892b78
+\ TIME&DATE DROP DROP DROP 60 * + 60 * + END-TIME !
+\ CR
+\ END-TIME @ START-TIME @ - .
