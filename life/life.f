@@ -93,8 +93,8 @@ INCLUDE     input-output.f
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    16   BUFFER @ 2 * +  GRID-X     !
-    16   BUFFER @ 2 * +  GRID-Y     !
+    100  BUFFER @ 2 * +  GRID-X     !
+    100  BUFFER @ 2 * +  GRID-Y     !
     0    CURRENT-GEN            !
     0    STABLE-GENS             !
     0    AVG-X                  !
@@ -141,13 +141,13 @@ INCLUDE     input-output.f
 
     \ GLIDER-SETUP-NOT-CORNER
 
-    SPACESHIP-SETUP
+    \ SPACESHIP-SETUP
 
     \ 5 N-LINE
     ( RANDOM START )
     \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
 
-    \ FILL-50-RND
+    FILL-50-RND
 
 
     GRID-X @ bmp-x-size !
@@ -161,8 +161,8 @@ INCLUDE     input-output.f
 : SETUP-LIFE-SILENT ( N -- ; -- ) 
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    200  BUFFER @ 2 * +  GRID-X        !
-    200  BUFFER @ 2 * +  GRID-Y        !
+    1000  BUFFER @ 2 * +  GRID-X        !
+    1000  BUFFER @ 2 * +  GRID-Y        !
     0    CURRENT-GEN    !
     0    STABLE-GENS    !
     0    AVG-X          !
@@ -343,12 +343,12 @@ LOOP
 ;
 
 : RUN-LIFE-BUFFER 
-    0 BUFFER !
+    2 BUFFER !
     SETUP-LIFE
         MAKE-TEST-FILE
         WRITE-FILE-HEADER
         DRAW-LIFE
-        5000 ms
+        1000 ms
         DRAW-LIFE
         1000 ms
         BEGIN
@@ -409,14 +409,18 @@ VARIABLE COUNTER
     SETUP-LIFE-SILENT
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
-    12000 0 DO
+    10000 0 DO
         SAVE-CELL-STATS-UNIQUE
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
         1 ms
+        \ CURRENT-GEN @ BUFFER @ 5 * MOD 0 = IF
+        \     CLEAR-BUFFER
+        \ THEN
         I 500 mod 0 = IF 
-            CR
+            CR CR
             CURRENT-GEN @ .
+            CR
         THEN
         CURRENT-GEN @ 1 + CURRENT-GEN !
     LOOP
@@ -430,8 +434,8 @@ VARIABLE COUNTER
 
 { RUNNING BIT }
 
-RUN-LIFE
+\ RUN-LIFE
 \ RUN-LIFE-SILENT
 \ RUN-LIFE-BUFFER
 \ LINE-INVESTIGATION
-\ GRID-SIZE-INVESTIGATION
+GRID-SIZE-INVESTIGATION
