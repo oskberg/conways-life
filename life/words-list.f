@@ -8,85 +8,59 @@ CREATE SEED  123456789 ,
    2DUP > IF - 
    ELSE - 2147483647 +  
    THEN  DUP R> !
-   SWAP MOD ;
-  
-: CLEAR-STACK 0
+   SWAP MOD 
+;
+
+( empties the stack )
+: CLEAR-STACK ( -- )
+0
 BEGIN
     drop
     depth 0 =
-UNTIL ;
+UNTIL 
+;
 
-: CREATE-ARRAY-100
-100 ALLOCATE drop ;
+( creates an array size 100 )
+: CREATE-ARRAY-100 ( -- )
+100 ALLOCATE drop 
+;
 
-: SHOW-ARRAY-100 CR
-100 0 DO
-    I 10 mod 0= IF
-        CR
-    THEN dup I + c@ 4 .R
-LOOP CR ;
-
-: ARRAY-@ { ARRAY-LOCATION X Y -- }
-10 * + + c@ ;
-
-: ARRAY-! { n1 ARRAY-LOCATION X Y -- }
-10 * + + c! ;
-
-: LINEAR-SMALL-ARRAY { ARRAY-LOCATION -- }
-100 0 DO 
-    dup I + I swap c!
-LOOP ;
-
-{ N -- }
-: CREATE-N-BY-N 
-dup * ALLOCATE drop ;
-
-{ WIDTH HEIGH -- }
-: CREATE-X-BY-Y 
-* ALLOCATE drop ;
-
-{ LOCATION HEIGHT WIDTH -- }
-: SHOW-ARRAY-Y-X
+( Prints the array into the console )
+: SHOW-ARRAY-Y-X ( ARR-LOCATION Y-SIZE X-SIZE -- )
 dup rot * 0 DO
     dup I swap mod 0= IF
         CR
     THEN over I + c@ 3 .R
 LOOP ;
 
-: ARRAY-W-@ { ARRAY-LOCATION X Y WIDTH -- }
-* + + c@ ;
-
-: ARRAY-W-! { n1 ARRAY-LOCATION X Y WIDHT -- }
-* + + c! ; 
-
-{ ARRAY-LOCATION TOTAL-SIZE }
-{ USES THE RND FUCTION FROM GRAPHICS_TEST.F }
-{ Should porbably add a c to the !}
-: FILL-RND 
+( Fills the array with a 1 or 0 )
+: FILL-RND ( ARR-LOCATION TOTAL-SIZE -- )
 0 DO
     2 rnd over I + ! 
-LOOP ;
+LOOP 
+;
 
+( Randomly adds a 1 or 0 to location in the array )
 : ADD-RND-CELL  ( Location-in-array -- )
     2 rnd swap !
 ;
 
 ( Fills the central 50x50 grid with random cells )
-: FILL-50-RND 
-GRID-X @ 2 / 25 - dup 50 + swap DO
-    GRID-Y @ 2 / 25 - dup 50 + swap DO
+: FILL-50-RND ( -- )
+GRID-X @ 2 / 25 - dup 50 + swap DO                  ( loops through x' - 25 --> x' + 25)
+    GRID-Y @ 2 / 25 - dup 50 + swap DO              ( loops through y' - 25 --> x' + 25)
         GRID-Y @ I * J + ARR-CELLS @ +
-        ADD-RND-CELL
+        ADD-RND-CELL                                ( randomly adds 1/0s )
     LOOP
 LOOP
 ;
 
-{ returns 1 if alive and 0 if dead }
+( Returns 1/0 for if it should be alive or dead )
 : LIFE-RULE ( status neighbours -- new-status )
     CASE 
         0 OF drop 0 ENDOF 
         1 OF drop 0 ENDOF 
-        2 OF 1 = abs ENDOF   { if current status = 0 return 0, else abs( -1 ). Could also do nothing }
+        2 OF 1 = abs ENDOF                          ( if current status = 0 return 0, else abs( -1 )
         3 OF drop 1 ENDOF 
         4 OF drop 0 ENDOF 
         5 OF drop 0 ENDOF 

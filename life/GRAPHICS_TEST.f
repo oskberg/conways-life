@@ -87,62 +87,6 @@ CREATE SEED  123475689 ,
    THEN  DUP R> !
    SWAP MOD ;
   
-: CLEAR-STACK 0
-BEGIN
-    drop
-    depth 0 =
-UNTIL ;
-
-: CREATE-ARRAY-100
-100 ALLOCATE drop ;
-
-: SHOW-ARRAY-100 CR
-100 0 DO
-    I 10 mod 0= IF
-        CR
-    THEN dup I + c@ 4 .R
-LOOP CR ;
-
-: ARRAY-@ { ARRAY-LOCATION X Y -- }
-10 * + + c@ ;
-
-: ARRAY-! { n1 ARRAY-LOCATION X Y -- }
-10 * + + c! ;
-
-: LINEAR-SMALL-ARRAY { ARRAY-LOCATION -- }
-100 0 DO 
-    dup I + I swap c!
-LOOP ;
-
-{ N -- }
-: CREATE-N-BY-N 
-dup * ALLOCATE drop ;
-
-{ WIDTH HEIGH -- }
-: CREATE-X-BY-Y 
-* ALLOCATE drop ;
-
-{ LOCATION HEIGHT WIDTH -- }
-: SHOW-ARRAY-Y-X
-dup rot * 0 DO
-    dup I swap mod 0= IF
-        CR
-    THEN over I + c@ 3 .R
-LOOP ;
-
-: ARRAY-W-@ { ARRAY-LOCATION X Y WIDTH -- }
-* + + c@ ;
-
-: ARRAY-W-! { n1 ARRAY-LOCATION X Y WIDHT -- }
-* + + c! ;
-
-{ ARRAY-LOCATION TOTAL-SIZE }
-{ USES THE RND FUCTION FROM GRAPHICS_TEST.F }
-: FILL-RND 
-0 DO
-    2 rnd over I + ! 
-LOOP ;
-
 { --------------------------- Words to create a bmp file in memory ----------------------- }
 
 
@@ -468,146 +412,60 @@ bmp-APP-CLASS                   { Call class for displaying bmp's in a child win
   ;
 
 
-{ ----------------------------- Run Test Output Routines ------------------------------- }
+{ -------------------------------- Life Stuff Goes Here -------------------------------- }
 
-{ POSITION-IN-BMP -- }
-: WRITE-BLACK 
+( Writes a black pixel to the memory location )
+: WRITE-BLACK ( Position-in-BMP -- )
   0 over C!
   1 + 0 over c!
-  1 + 0 over c! ;
+  1 + 0 over c! 
+;
 
-{ POSITION-IN-BMP -- }
-: WRITE-WHITE
+( Writes a white pixel to the memory location )
+: WRITE-WHITE ( Position-in-BMP -- )
   255 over C!
   1 + 255 over c!
-  1 + 255 over c! ;
+  1 + 255 over c! 
+;
 
+54 CONSTANT HEADER-OFFSET
 
-   54 CONSTANT HEADER-OFFSET
-
-{ ARR-LOCATION SIZE -- }
-: ARRAY-TO-BMP
+( converts the array of 1s and 0s to a bmp image )
+: ARRAY-TO-BMP ( ARR-LOCATION SIZE -- )
   0 DO
-    bmp-address @ HEADER-OFFSET + I 3 * + { pixel i in bmp image }
-    over I + c@ { value at i in array }
-    1 = IF { if value at i is 1 }
-      WRITE-BLACK { make pixel black }
+    bmp-address @ HEADER-OFFSET + I 3 * +                   ( pixel i in bmp image )
+    over I + c@                                             ( value at i in array )
+    1 = IF                                                  ( if value at i is 1 )
+      WRITE-BLACK                                           ( make black pixel )     
     ELSE WRITE-WHITE
     THEN drop
-  LOOP ;
+  LOOP 
+;
 
-{ ARR-LOCATION -- }
-{ works }
-: ARRAY-TO-BMP-INV
-  bmp-y-size @ 0 DO                                         { LOOP OVER THE ROWS }
-    bmp-x-size @ 0 DO                                       { LOOP OVER THE COLUMNS}
+( converts the array of 1s and 0s to a bmp image and inverts so the array matches the bmp image displayed )
+: ARRAY-TO-BMP-INV ( ARR-LOCATION -- )
+  bmp-y-size @ 0 DO                                         ( LOOP OVER THE ROWS )
+    bmp-x-size @ 0 DO                                       ( LOOP OVER THE COLUMNS )
       bmp-address @ HEADER-OFFSET + I 3 * J bmp-x-size @ 3 * * + +
-      over I + bmp-y-size @ J 1 + - bmp-x-size @ * + c@     { get value from array }
-      \ dup .                                               { uncomment to print out array }
-        1 = IF                                               { if value at i is 1 }
-          WRITE-BLACK                                       { make pixel black }
+      over I + bmp-y-size @ J 1 + - bmp-x-size @ * + c@     ( get value from array )
+      \ dup .                                               ( uncomment to print out array )
+        1 = IF                                              ( if value at i is 1 )
+          WRITE-BLACK                                       ( make pixel black )
         ELSE 
-          WRITE-WHITE                                       { make pixel black }
+          WRITE-WHITE                                       ( make pixel black )
         THEN drop
     LOOP
-  LOOP ;
+  LOOP 
+;
 
-{ ARR-LOCATION -- }
-{ WORKS }
-: SHOW-ARR-INV CR 
-  bmp-y-size @ 0 DO             { LOOP OVER THE ROWS }
-    bmp-x-size @ 0 DO           { LOOP OVER THE COLUMNS}
+( prints the array to the console )
+: SHOW-ARR-INV ( ARR-LOCATION -- )
+  CR
+  bmp-y-size @ 0 DO                                         ( LOOP OVER THE ROWS )
+    bmp-x-size @ 0 DO                                       ( LOOP OVER THE COLUMNS )
       dup I + bmp-y-size @ J 1 + - bmp-x-size @ * + c@ 2 .R
     LOOP 
     CR
-  LOOP ;
+  LOOP 
+;
 
-  \   \  paint-pixels       { Demo paint individual pixels           }
-
-  \  100 bmp-x-size !    { Create a blank 16x16 .bmp in memory    }
-  \  100 bmp-y-size !
-  \  Setup-Test-Memory  
-
-  \  16 CREATE-N-BY-N CONSTANT RND-ARR
-  \ bmp-x-size @ bmp-y-size @ CREATE-X-BY-Y CONSTANT RND-ARR
-  \ RND-ARR bmp-x-size @ bmp-y-size @ * FILL-RND
-
-  \ RND-ARR ARRAY-TO-BMP-INV
-
-\ : RND-WINDOW 
-\   cr cr ." Creating random window " cr cr
-\   New-bmp-Window-stretch
-\   bmp-window-handle !
-\   BEGIN
-\     RND-ARR bmp-x-size @ bmp-y-size @ * FILL-RND
-\     RND-ARR ARRAY-TO-BMP-INV
-\     bmp-address @ bmp-to-screen-stretch
-\     100 ms
-\     KEY?
-\   UNTIL
- 
-\   ." ENDING RANDOM WINDOW "
-\ ;
-\ run this command below to create a random window
-  \ rnd-window
-    
-    
-    \ cr ." Starting single pixel paint test " cr
-    \ New-bmp-Window-stretch
-    \ bmp-window-handle !
-
-    \ bmp-address @ bmp-to-screen-stretch
-
-  \   : go-stretch                          { Draw bmp to screen at variable pixel size       }
-  \ cr ." Starting looped stretch to window test " 
-  \ cr cr
-  \ New-bmp-Window-stretch              { Create new "stretch" window                     }
-  \ bmp-window-handle !                 { Store window handle                             }
-  \ Begin	                              { Begin update / display loop                     }
-  \ bmp-address @ Random-bmp-Blue       { Add random pixels to .bmp in memory             }
-  \ bmp-address @ bmp-to-screen-stretch { Stretch .bmp to display window                  }
-  \ 100 ms                              { Delay for viewing ease, reduce for higher speed }
-  \ key?                                { Break test loop on key press                    }
-  \ until 
-  \ cr ." Ending looped stretch to window test " 
-  \ cr cr
-  \ ;
-
-    \ 10000 ms
-    \ cr ." Ending single pixel paint test " 
-    \ bmp-window-handle @ DestroyWindow drop  { Kill of display window                       }
-
-{ ARRAY-LOCATION -- }
-{ broken }
-: SHOW-ARRAY-Y-X-INV
-bmp-x-size bmp-y-size * 0 DO
-    dup bmp-x-size bmp-y-size * I - bmp-y-size / bmp-x-size * i bmp-x-size mod + +
-    i bmp-x-size mod 0= IF
-        CR
-    THEN c@ .
-LOOP ;
-
-    \ bmp-address @ HEADER-OFFSET + 16 16 3 * * 255 FILL
-    
-    \ bmp-address @ HEADER-OFFSET 3 + + WRITE-BLACK
-
-    \ bmp-address @ bmp-to-screen-stretch
-    
-    \ 3000 ms
-    \ cr ." Ending single pixel paint test " 
-    \ bmp-window-handle @ DestroyWindow drop  { Kill of display window                       }
-    \ cr cr
-
-
-
-  \  go-copy            { Demo looped copy to screen routine     }
-
-  \  go-dark            { Demo set, set, reset to screen routine }
-
-  \  200 bmp-x-size ! 
-  \  200 bmp-y-size !
-  \  Setup-Test-Memory  { Create a blank 200x200 .bmp in memory  }
-
-  \  go-stretch         { Demo stretch to screen routine         }
-
-{ -------------------------------- Life Stuff Goes Here -------------------------------- }
