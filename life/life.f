@@ -12,6 +12,8 @@ VARIABLE    AVG-Y
 VARIABLE    BUFFER 
 VARIABLE    START-TIME
 VARIABLE    END-TIME
+VARIABLE    CELLS-TO-CHECK
+VARIABLE    CELLS-CHECKED
 
 VARIABLE    STABLE-GENS
 VARIABLE    MAX-X
@@ -97,8 +99,8 @@ INCLUDE     input-output.f
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    100  BUFFER @ 2 * +  GRID-X     !
-    100  BUFFER @ 2 * +  GRID-Y     !
+    400  BUFFER @ 2 * +  GRID-X     !
+    400  BUFFER @ 2 * +  GRID-Y     !
     0    CURRENT-GEN            !
     0    STABLE-GENS             !
     0    AVG-X                  !
@@ -173,6 +175,8 @@ INCLUDE     input-output.f
     ( HAVE TO BE DIVISABLE BY 16? )
     1000  GRID-X        !
     1000  GRID-Y        !
+    \ 400  BUFFER @ 2 * +  GRID-X        !
+    \ 400  BUFFER @ 2 * +  GRID-Y        !
     0    CURRENT-GEN    !
     0    STABLE-GENS    !
     0    AVG-X          !
@@ -562,6 +566,39 @@ VARIABLE COUNTER
     CLOSE-TEST-FILE
 ;
 
+: PHASE-TRANSITION-INVESTIGATION
+    TIME&DATE DROP DROP DROP 60 * + 60 * + START-TIME !
+    0 BUFFER !
+    GRID-X @ GRID-Y @ * CELLS-TO-CHECK !
+    SETUP-LIFE
+    MAKE-TEST-FILE
+    WRITE-FILE-HEADER
+    DRAW-LIFE
+    COUNT-ALL-NEIGHBOURS
+    1000 ms
+    4000 0 DO
+        DRAW-LIFE
+        SAVE-CELL-STATS-UNIQUE
+        COUNT-S-NEIGHBOURS
+        UPDATE-LIFE-ARRS
+        1 ms
+        \ CURRENT-GEN @ BUFFER @ 5 * MOD 0 = IF
+        \     CLEAR-BUFFER
+        \ THEN
+        I 500 mod 0 = IF 
+            CR CR
+            CURRENT-GEN @ .
+            CR
+        THEN
+        CURRENT-GEN @ 1 + CURRENT-GEN !
+    LOOP
+    cr
+    TIME&DATE DROP DROP DROP 60 * + 60 * + END-TIME !
+    CR
+    END-TIME @ START-TIME @ - .
+    CLOSE-TEST-FILE
+;
+
 { RUNNING BIT }
 
 \ RUN-LIFE
@@ -577,3 +614,5 @@ RUN-LIFE-S
 \ TIME&DATE DROP DROP DROP 60 * + 60 * + END-TIME !
 \ CR
 \ END-TIME @ START-TIME @ - .
+\ GRID-SIZE-INVESTIGATION
+\ phase-transition-investigation
