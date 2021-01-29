@@ -97,12 +97,21 @@ INCLUDE     input-output.f
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
+<<<<<<< HEAD
     1000    GRID-X         !
     1000    GRID-Y         !
     0    CURRENT-GEN    !
     0    STABLE-GENS    !
     0    AVG-X          !
     0    AVG-Y          !
+=======
+    100  BUFFER @ 2 * +  GRID-X     !
+    100  BUFFER @ 2 * +  GRID-Y     !
+    0    CURRENT-GEN            !
+    0    STABLE-GENS             !
+    0    AVG-X                  !
+    0    AVG-Y                  !
+>>>>>>> cd27aaecc5af21052b88a0485cc75202ac892b78
 
     GRID-X @ MAX-X !
     GRID-Y @ MAX-Y !
@@ -157,7 +166,7 @@ INCLUDE     input-output.f
     ( RANDOM START )
     \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
 
-    \ FILL-50-RND
+    FILL-50-RND
 
 
     GRID-X @ bmp-x-size !
@@ -171,8 +180,13 @@ INCLUDE     input-output.f
 : SETUP-LIFE-SILENT ( N -- ; -- ) 
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
+<<<<<<< HEAD
     1000  GRID-X         !
     1000  GRID-Y         !
+=======
+    1000  BUFFER @ 2 * +  GRID-X        !
+    1000  BUFFER @ 2 * +  GRID-Y        !
+>>>>>>> cd27aaecc5af21052b88a0485cc75202ac892b78
     0    CURRENT-GEN    !
     0    STABLE-GENS    !
     0    AVG-X          !
@@ -438,15 +452,12 @@ VARIABLE HIT-EDGE
 ;
 
 : RUN-LIFE-BUFFER 
-    0 BUFFER !
+    2 BUFFER !
     SETUP-LIFE
-    MAKE-TEST-FILE
-    WRITE-FILE-HEADER
-    DRAW-LIFE
-    5000 ms
-    DRAW-LIFE
-    1000 ms
-    BEGIN
+        MAKE-TEST-FILE
+        WRITE-FILE-HEADER
+        DRAW-LIFE
+        1000 ms
         DRAW-LIFE
         SAVE-CELL-STATS
         COUNT-ALL-NEIGHBOURS
@@ -504,14 +515,18 @@ VARIABLE COUNTER
     SETUP-LIFE-SILENT
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
-    12000 0 DO
+    10000 0 DO
         SAVE-CELL-STATS-UNIQUE
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
         1 ms
+        \ CURRENT-GEN @ BUFFER @ 5 * MOD 0 = IF
+        \     CLEAR-BUFFER
+        \ THEN
         I 500 mod 0 = IF 
-            CR
+            CR CR
             CURRENT-GEN @ .
+            CR
         THEN
         CURRENT-GEN @ 1 + CURRENT-GEN !
     LOOP
@@ -529,6 +544,7 @@ VARIABLE COUNTER
 \ RUN-LIFE-SILENT
 \ RUN-LIFE-BUFFER
 \ LINE-INVESTIGATION
+<<<<<<< HEAD
 
 TIME&DATE DROP DROP DROP 60 * + 60 * + START-TIME !
 
@@ -537,3 +553,6 @@ RUN-LIFE-SILENT
 TIME&DATE DROP DROP DROP 60 * + 60 * + END-TIME !
 CR
 END-TIME @ START-TIME @ - .
+=======
+GRID-SIZE-INVESTIGATION
+>>>>>>> cd27aaecc5af21052b88a0485cc75202ac892b78

@@ -1,4 +1,4 @@
-CREATE SEED  123475686 ,
+CREATE SEED  123456789 ,
 
 : Rnd ( n -- rnd )   { Returns single random number less than n }
    SEED              { Minimal version of SwiftForth Rnd.f      }

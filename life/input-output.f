@@ -109,4 +109,5 @@ variable TEST-FILE-ID                             { Create Variable to hold file
       AVG-Y @ swap / (.) TEST-FILE-ID @ write-line drop
       FALSE
     THEN 
+    drop
 ;
