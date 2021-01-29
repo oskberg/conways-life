@@ -1,0 +1,7 @@
+generation #, # alive cells, # dead cells, BORN, KILLED, avg x pos, avg y pos 
+0,5,251,0,0,0,0
+1,5,251,2,2,2,2
+2,5,251,2,2,3,2
+3,4,252,1,2,3,2
+4,3,253,0,1,3,2
+5,4,252,1,0,3,2
