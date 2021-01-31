@@ -1,1 +1,0 @@
-: EVENS 0 21 4 DO CR I dup . dup * 2 +LOOP. ;
