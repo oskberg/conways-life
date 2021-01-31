@@ -20,6 +20,10 @@ BEGIN
 UNTIL 
 ;
 
+: create-x-by-y 
+    * ALLOCATE drop
+;
+
 ( creates an array size 100 )
 : CREATE-ARRAY-100 ( -- )
 100 ALLOCATE drop 

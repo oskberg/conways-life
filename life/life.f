@@ -14,6 +14,10 @@ VARIABLE    START-TIME
 VARIABLE    END-TIME
 VARIABLE    UPDATE-COUNT
 VARIABLE    COUNTER
+VARIABLE    ALIVE-CELLS
+VARIABLE    S-CURRENT
+VARIABLE    STEP-SIZE
+VARIABLE    FOUND-S
 
 VARIABLE    STABLE-GENS
 VARIABLE    MAX-X
@@ -142,12 +146,13 @@ INCLUDE     input-output.f
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 4 )
     ( Buffer is used for absorbing, set to 0 for wrapping )
-    64  BUFFER @ 2 * +  GRID-X     !
-    64  BUFFER @ 2 * +  GRID-Y     !
-    0    CURRENT-GEN            !
-    0    STABLE-GENS             !
-    0    AVG-X                  !
-    0    AVG-Y                  !
+    500  BUFFER @ 2 * +  GRID-X      !
+    300  BUFFER @ 2 * +  GRID-Y      !
+    0   CURRENT-GEN                 !
+    0   STABLE-GENS                 !
+    0   AVG-X                       !
+    0   AVG-Y                       !
+    0   ALIVE-CELLS                 !
 
     GRID-X @ MAX-X !
     GRID-Y @ MAX-Y !
@@ -166,25 +171,17 @@ INCLUDE     input-output.f
     ( SET SEED HERE )
 
     \ Methuselah-1 
-
     \ Methuselah-2
-
     \ Methuselah-5
-
-    \ ACORN-400
-
+    ACORN-400
     \ WRAPPED-EDGES-TEST
-
     \ GLIDER-SETUP
-
     \ GLIDER-SETUP-NOT-CORNER
-
     \ SPACESHIP-SETUP
-
     \ 43 N-LINE
 
     ( RANDOM START )
-    ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
+    \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
 
     \ FILL-50-RND         ( CREATES A 50 X 50 RANDOM GRID IN MIDDLE of the array )
 
@@ -201,8 +198,8 @@ INCLUDE     input-output.f
 : SETUP-LIFE-SILENT ( -- ) 
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 4 )
-    1000  GRID-X        !
-    1000  GRID-Y        !
+    64  GRID-X        !
+    64  GRID-Y        !
     ( Buffer is used for absorbing, set to 0 for wrapping )
     \ 400  BUFFER @ 2 * +  GRID-X        !
     \ 400  BUFFER @ 2 * +  GRID-Y        !
@@ -305,7 +302,7 @@ INCLUDE     input-output.f
     0 UPDATE-COUNT !
     GRID-Y @ 0 DO
         GRID-X @ 0 DO
-            dup 100 RND > IF                        ( UPDATE ) 
+            dup 1000 RND > IF                       ( UPDATE ) 
                 I J COUNT-NEIGHBOURS-WRAP           ( number of neighbours )
                 J GRID-X @ * I + ARR-NEIGH @ +      ( location in arr-neigh )
                 c!                                  ( write to that location )
@@ -319,7 +316,6 @@ INCLUDE     input-output.f
 
 ( Optimisation algorithm in progress which just checks the "active" area of the grid  )
 : COUNT-ALL-NEIGHBOURS-OPT ( -- )
-    CR MAX-Y @ . MIN-Y @ . MAX-X @ . MIN-X @ . CR
     MAX-Y @
     MIN-Y @ DO
         MAX-X @
@@ -339,6 +335,7 @@ INCLUDE     input-output.f
     0 KILLED !
     0 AVG-X !
     0 AVG-Y !
+    0 ALIVE-CELLS !
     
     MAX-Y @ MIN-Y @
     MAX-X @ TEMP1 !
@@ -351,17 +348,18 @@ INCLUDE     input-output.f
 
     FALSE HIT-EDGE !
 
-    \ GRID-Y @ 0 DO
-    \     GRID-X @ 0 DO
-    \ CR .S
     DO
         TEMP1 @ TEMP2 @ DO
-            J GRID-x @ * I + ARR-CELLS @ + c@       ( finds status of cell )
+            I GRID-X @ > I 0 < OR
+            J GRID-Y @ > J 0 < OR
+            OR IF
+                CR I . J . THEN
+            J GRID-X @ * I + ARR-CELLS @ + c@       ( finds status of cell )
             dup 
-            J GRID-x @ * I + ARR-NEIGH @ + c@       ( finds # of neighbours )
+            J GRID-X @ * I + ARR-NEIGH @ + c@       ( finds # of neighbours )
             LIFE-RULE                               ( does rules to leaves 1/0 on stack )
             dup 
-            J GRID-x @ * I + ARR-CELLS @ + c!       ( writes value to arr-cells )
+            J GRID-X @ * I + ARR-CELLS @ + c!       ( writes value to arr-cells )
             1 pick 1 pick < IF 
                 BORN @ 1 + BORN !                   ( if new status > old status cell has been born ) 
                 ( check if at the border )
@@ -372,26 +370,35 @@ INCLUDE     input-output.f
                 THEN
             THEN swap 1 pick > 
             IF KILLED @ 1 + KILLED ! 
-            THEN                                    ( TODO: Could count alive cells here instead of wherever were doing that)
-            1 = if                                  ( if cell is alive add x & y values to averages )
+            THEN                                    
+            1 = IF                                  ( if cell is alive add x & y values to averages )
                 AVG-X @ I + AVG-X !                 ( i think that x and y are swapped )
                 AVG-Y @ J + AVG-Y !
+                ALIVE-CELLS @ 1+ ALIVE-CELLS !
 
                 HIT-EDGE @ IF 
-                        GRID-X @ MAX-X !
-                        GRID-Y @ MAX-Y !
-                        0 MIN-X !
-                        0 MIN-Y !
+                    GRID-X @ MAX-X !
+                    GRID-Y @ MAX-Y !
+                    0 MIN-X !
+                    0 MIN-Y !
                 ELSE
                     ( GET MIN AND MAX X AND Y )
-                    I MIN-X @ <= IF I 1 - MIN-X ! THEN
-                    J MIN-Y @ <= IF J 1 - MIN-Y ! THEN
-                    I MAX-X @ >= IF I 1 + MAX-X ! THEN
-                    J MAX-Y @ >= IF J 1 + MAX-Y ! THEN
+                    I MIN-X @ <= IF I I 0 > + MIN-X ! THEN
+                    J MIN-Y @ <= IF J J 0 > + MIN-Y ! THEN
+                    I MAX-X @ 1- >= IF I 1 + I GRID-X @ < - MAX-X ! THEN
+                    J MAX-Y @ 1- >= IF J 1 + J GRID-Y @ < - MAX-Y ! THEN
                 THEN
             then
         LOOP
     LOOP
+    ALIVE-CELLS @ 0= IF
+        GRID-X @ MAX-X !
+        GRID-Y @ MAX-Y !
+        0 MIN-X !
+        0 MIN-Y !
+    THEN
+    MIN-X @ MAX-X @ > IF ." X WRONG " THEN 
+    MIN-Y @ MAX-Y @ > IF ." Y WRONG " THEN
 ;
 
 ( updates the life array with dead/allive cells using the current status, # neighbours & life-rules )
@@ -400,6 +407,7 @@ INCLUDE     input-output.f
     0 KILLED !
     0 AVG-X !
     0 AVG-Y !
+    0 ALIVE-CELLS !
     GRID-Y @ 0 DO
         GRID-X @ 0 DO
             J GRID-x @ * I + ARR-CELLS @ + c@               ( finds status of cell )
@@ -422,6 +430,7 @@ INCLUDE     input-output.f
                     KILLED @ 1 + KILLED ! 
                 THEN                                       
                     1 = if                                  ( if cell is alive add x & y values to average totals )
+                        ALIVE-CELLS @ 1+ ALIVE-CELLS !
                         AVG-X @ I + AVG-X !                 
                         AVG-Y @ J + AVG-Y !
                     then
@@ -464,9 +473,9 @@ INCLUDE     input-output.f
     BEGIN                                       ( runs the game of life until key press )
         DRAW-LIFE
         SAVE-CELL-STATS
-        COUNT-ALL-NEIGHBOURS
-        UPDATE-LIFE-ARRS
-        10 ms
+        COUNT-ALL-NEIGHBOURS-OPT
+        UPDATE-LIFE-ARRS-OPT
+        1 ms
         CURRENT-GEN @ 1 + CURRENT-GEN !
         KEY?
     UNTIL
@@ -611,7 +620,7 @@ INCLUDE     input-output.f
         ARR-CELLS @ GRID-X @ GRID-Y @ * 0 FILL  
         ARR-NEIGH @ GRID-X @ GRID-Y @ * 0 FILL  
         ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
-        I 10000 *  CURRENT-GEN    !
+        I 10000 * CURRENT-GEN    !
         0 STABLE-GENS !
         SAVE-CELL-STATS-UNIQUE drop
         0 COUNTER !
@@ -636,15 +645,69 @@ INCLUDE     input-output.f
     CLOSE-TEST-FILE
 ;
 
+( Finds the critical s value for a grid of dimensions GRID-X x GRID-Y )
+( starts at s_0 which must be higher than s_c )
+: FIND-S-CRITICAL ( -- s_c)
+    CR CR ." LOOKING FOR S_c " CR
+    0 BUFFER !
+    SETUP-LIFE-SILENT
+    MAKE-TEST-FILE
+    FALSE FOUND-S !
+    BEGIN
+        ARR-CELLS @ GRID-X @ GRID-Y @ * 0 FILL  
+        ARR-NEIGH @ GRID-X @ GRID-Y @ * 0 FILL  
+        ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
+        S-CURRENT @ 10000 *  CURRENT-GEN    !
+        0 STABLE-GENS !
+        SAVE-CELL-STATS
+        0 COUNTER !
+        drop
+        COUNT-ALL-NEIGHBOURS
+        BEGIN
+            1 MS
+            S-CURRENT @ COUNT-S-NEIGHBOURS
+            UPDATE-LIFE-ARRS
+            CURRENT-GEN @ 1+ CURRENT-GEN !
+            COUNTER @ 1+ COUNTER !
+            SAVE-CELL-STATS
+
+            BORN @ KILLED @ = IF
+                STABLE-GENS @ 1+ STABLE-GENS !
+            ELSE 
+                0 STABLE-GENS !
+            THEN 
+
+            ALIVE-CELLS 0= BORN @ KILLED @ + 0= OR IF
+                S-CURRENT @ STEP-SIZE @ - S-CURRENT !
+                TRUE 
+            ELSE FALSE
+            THEN 
+
+            STABLE-GENS @ 5 > 
+            COUNTER @ 5000 > 
+            OR IF
+                ( FOUND S )
+                S-CURRENT
+                TRUE FOUND-S !
+            ELSE FALSE
+            THEN
+            OR
+        UNTIL
+        FOUND-S @
+    UNTIL  
+    CLOSE-TEST-FILE
+    S-CURRENT @
+;
+
 { RUNNING BIT }
 
-\ RUN-LIFE
+RUN-LIFE
 \ RUN-LIFE-SILENT
-RUN-LIFE-BUFFER
+\ RUN-LIFE-BUFFER
 \ LINE-INVESTIGATION
 \ RUN-LIFE-S
 
-96 85 S-INVESTIGATION
+\ 920 900 S-INVESTIGATION
 
 \ TIME&DATE DROP DROP DROP 60 * + 60 * + START-TIME !
 
@@ -655,3 +718,7 @@ RUN-LIFE-BUFFER
 \ END-TIME @ START-TIME @ - .
 \ GRID-SIZE-INVESTIGATION
 \ RUN-LIFE-S
+
+\ 950 S-CURRENT !
+\ 10 STEP-SIZE !
+\ FIND-S-CRITICAL .

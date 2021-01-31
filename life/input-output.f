@@ -2,14 +2,14 @@ variable TEST-FILE-ID                             { Create Variable to hold file
 
 
 : MAKE-TEST-FILE                                  { Create a test file to read / write to  }
-  s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\210129-E10-128-85.csv" r/w create-file drop  { Create the file                        } 
+  s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\210130-4.csv" r/w create-file drop  { Create the file                        } 
   \ s" C:\Users\lukem\OneDrive - Imperial College London\Year 3\Labs\Cycle 1\Proper Code\conways-life\output\cell_stats.csv" r/w create-file drop  { Create the file                        } 
   TEST-FILE-ID !                                  { Store file handle for later use        }
 ;
 
  
 : OPEN-TEST-FILE                                  { Open the file for read/write access    }
-  s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\210129-E10-128-85.csv" r/w open-file drop    { Not needed if we have just created     }
+  s" C:\Users\Oskar\Desktop\conways-life\conways-life\output\210130-4.csv" r/w open-file drop    { Not needed if we have just created     }
   \ s" C:\Users\lukem\OneDrive - Imperial College London\Year 3\Labs\Cycle 1\Proper Code\conways-life\output\cell_stats.csv" r/w open-file drop    { Not needed if we have just created     }
   TEST-FILE-ID !                                  { file.                                  }
 ;
