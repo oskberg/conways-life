@@ -97,8 +97,8 @@ INCLUDE     input-output.f
 : SETUP-LIFE ( -- )
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    100  BUFFER @ 2 * +  GRID-X     !
-    100  BUFFER @ 2 * +  GRID-Y     !
+    64  BUFFER @ 2 * +  GRID-X     !
+    64  BUFFER @ 2 * +  GRID-Y     !
     0    CURRENT-GEN            !
     0    STABLE-GENS             !
     0    AVG-X                  !
@@ -155,9 +155,9 @@ INCLUDE     input-output.f
 
     \ 43 N-LINE
     ( RANDOM START )
-    \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
+    ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
 
-    FILL-50-RND         ( CREATES A 50 X 50 RANDOM GRID IN MIDDLE)
+    \ FILL-50-RND         ( CREATES A 50 X 50 RANDOM GRID IN MIDDLE)
 
 
     GRID-X @ bmp-x-size !
@@ -171,8 +171,8 @@ INCLUDE     input-output.f
 : SETUP-LIFE-SILENT ( N -- ; -- ) 
     ( set grid sizes in globals )
     ( HAVE TO BE DIVISABLE BY 16? )
-    1000  GRID-X        !
-    1000  GRID-Y        !
+    128  GRID-X        !
+    128  GRID-Y        !
     0    CURRENT-GEN    !
     0    STABLE-GENS    !
     0    AVG-X          !
@@ -193,7 +193,7 @@ INCLUDE     input-output.f
     
     ( SET SEED HERE )
     \ N-LINE ( IF ACTIVE NEEDS INPUT)
-    ACORN-400
+    \ ACORN-400
     ( RANDOM START )
     \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
     \ GLIDER-SETUP-NOT-CORNER
@@ -280,7 +280,7 @@ VARIABLE UPDATE-COUNT
         LOOP
     LOOP
     drop
-    CR UPDATE-COUNT @ .
+    \ CR UPDATE-COUNT @ .
 ;
 
 ( THIS SHIT AINT WORKING CHEIF  )
@@ -449,7 +449,7 @@ VARIABLE HIT-EDGE
     BEGIN
         DRAW-LIFE
         SAVE-CELL-STATS
-        80 COUNT-S-NEIGHBOURS
+        1 COUNT-S-NEIGHBOURS
         UPDATE-LIFE-ARRS
         10 ms
         CURRENT-GEN @ 1 + CURRENT-GEN !
@@ -464,7 +464,7 @@ VARIABLE HIT-EDGE
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
     5000 0 DO
-        SAVE-CELL-STATS-UNIQUE
+        SAVE-CELL-STATS-UNIQUE drop
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
         1 ms
@@ -540,7 +540,7 @@ VARIABLE COUNTER
     MAKE-TEST-FILE
     WRITE-FILE-HEADER
     10000 0 DO
-        SAVE-CELL-STATS-UNIQUE
+        SAVE-CELL-STATS-UNIQUE drop
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
         1 ms
@@ -562,13 +562,50 @@ VARIABLE COUNTER
     CLOSE-TEST-FILE
 ;
 
+: S-INVESTIGATION ( S1 S2 -- )
+    0 BUFFER !
+    SETUP-LIFE-SILENT
+    MAKE-TEST-FILE
+    WRITE-FILE-HEADER
+    DO 
+        CR I .
+        ARR-CELLS @ GRID-X @ GRID-Y @ * 0 FILL  
+        ARR-NEIGH @ GRID-X @ GRID-Y @ * 0 FILL  
+        ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
+        I 10000 *  CURRENT-GEN    !
+        0 STABLE-GENS !
+        SAVE-CELL-STATS-UNIQUE drop
+        0 COUNTER !
+        drop
+        COUNT-ALL-NEIGHBOURS
+        BEGIN
+            1 MS
+            I COUNT-S-NEIGHBOURS
+            UPDATE-LIFE-ARRS
+            CURRENT-GEN @ 1+ CURRENT-GEN !
+            COUNTER @ 1+ COUNTER !
+            SAVE-CELL-STATS-UNIQUE dup IF ." break " then
+            BORN @ KILLED @ = IF
+                STABLE-GENS @ 1+ STABLE-GENS !
+            ELSE 
+                0 STABLE-GENS !
+            THEN 
+                STABLE-GENS @ 5 > OR COUNTER @ 5000 > OR
+            \ COUNTER @ 10 mod IF CR .S THEN
+        UNTIL
+    LOOP 
+    CLOSE-TEST-FILE
+;
+
 { RUNNING BIT }
 
 \ RUN-LIFE
 \ RUN-LIFE-SILENT
 \ RUN-LIFE-BUFFER
 \ LINE-INVESTIGATION
-RUN-LIFE-S
+\ RUN-LIFE-S
+
+96 85 S-INVESTIGATION
 
 \ TIME&DATE DROP DROP DROP 60 * + 60 * + START-TIME !
 

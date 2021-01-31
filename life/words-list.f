@@ -62,7 +62,7 @@ LOOP ;
 { ARRAY-LOCATION TOTAL-SIZE }
 { USES THE RND FUCTION FROM GRAPHICS_TEST.F }
 { Should porbably add a c to the !}
-: FILL-RND 
+: FILL-RND ( SIZE -- )
 0 DO
     2 rnd over I + ! 
 LOOP ;
