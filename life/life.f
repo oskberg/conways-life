@@ -29,6 +29,7 @@ VARIABLE    MIN-Y
 VARIABLE    TEMP1
 VARIABLE    TEMP2
 VARIABLE    HIT-EDGE
+VARIABLE BUFFER-COUNTDOWN
 
 { IMPORTS }
 INCLUDE     words-list.f
@@ -78,7 +79,7 @@ INCLUDE     seeds.f
     \ 43 N-LINE
 
     ( RANDOM START )
-    \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
+    \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND        ( use for investigating s )
     \ FILL-50-RND         ( CREATES A 50 X 50 RANDOM GRID IN MIDDLE of the array )
 
     ( Initialise the display window )
@@ -122,7 +123,7 @@ INCLUDE     seeds.f
     \ N-LINE ( IF ACTIVE NEEDS INPUT)
     \ ACORN-400
     ( RANDOM START )
-    \ ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
+    ARR-CELLS @ GRID-X @ GRID-Y @ * FILL-RND
 
     \ GLIDER-SETUP-NOT-CORNER
 
@@ -344,15 +345,38 @@ INCLUDE     seeds.f
 ( Kills all cells inside the buffer )
 : CLEAR-BUFFER ( -- )
     GRID-X @ 0 DO
-        BUFFER @ 0 DO                                       ( kills cells along x = 0, x = GRID-X )
+        BUFFER @ 0 DO                                       ( kills cells along y = 0, y = GRID-y )
+            I J REMOVE-CELL
+            GRID-Y @ I - J REMOVE-CELL
+        LOOP
+    LOOP
+    GRID-Y @ 0 DO
+        BUFFER @ 0 DO                                       ( kills cells along x = 0, x = GRID-x )
             J I REMOVE-CELL
             J GRID-X @ I - REMOVE-CELL
         LOOP
     LOOP
+;
+
+( checks how many cells are alive in the buffer zone )
+: CHECK-BUFFER ( -- alive-cells-buffer )
+0
+    GRID-X @ 0 DO
+        BUFFER @ 1 DO                                       ( checks cells along y = 0, y = GRID-y )
+            I J swap
+            GRID-X @ * + ARR-CELLS @ + c@ 
+            GRID-Y @ I - J swap
+            GRID-X @ * + ARR-CELLS @ + c@ 
+            + +
+        LOOP
+    LOOP
     GRID-Y @ 0 DO
-        BUFFER @ 0 DO                                       ( kills cells along y = 0, y = GRID-Y )
-            I J REMOVE-CELL
-            GRID-Y @ I - J REMOVE-CELL
+        BUFFER @ 1 DO                                       ( checks cells along x = 0, x = GRID-x )
+            J I swap
+            GRID-X @ * + ARR-CELLS @ + c@
+            J GRID-X @ I - swap
+            GRID-X @ * + ARR-CELLS @ + c@
+            + +
         LOOP
     LOOP
 ;
@@ -370,8 +394,8 @@ INCLUDE     seeds.f
     BEGIN                                       ( runs the game of life until key press )
         DRAW-LIFE
         SAVE-CELL-STATS
-        COUNT-ALL-NEIGHBOURS-OPT
-        UPDATE-LIFE-ARRS-OPT
+        COUNT-ALL-NEIGHBOURS                    ( add -opt for optimised version)
+        UPDATE-LIFE-ARRS                        ( add -opt for optimised version)
         1 ms
         CURRENT-GEN @ 1 + CURRENT-GEN !
         KEY?
@@ -423,6 +447,7 @@ INCLUDE     seeds.f
 ( Runs the game of life with absorbing edges using a buffer )
 : RUN-LIFE-BUFFER ( -- )
     2 BUFFER !                                  ( setup with a buffer size N )
+    0 BUFFER-COUNTDOWN !
     SETUP-LIFE
     MAKE-TEST-FILE                              ( initialises file for writing stats )
     WRITE-FILE-HEADER
@@ -433,10 +458,16 @@ INCLUDE     seeds.f
         SAVE-CELL-STATS
         COUNT-ALL-NEIGHBOURS
         UPDATE-LIFE-ARRS
-        CURRENT-GEN @ BUFFER @ 5 * MOD 0 = IF   ( Clears the buffer every 5 * buffer size generations )
-            CLEAR-BUFFER
+        CHECK-BUFFER
+        0 > IF
+            BUFFER-COUNTDOWN @ 1 + BUFFER-COUNTDOWN !
+        ELSE
+            0 BUFFER-COUNTDOWN !
         THEN
-        100 ms
+        BUFFER-COUNTDOWN @ BUFFER @ > IF        ( Clears the buffer when there's been cells in the buffer )
+            CLEAR-BUFFER                        ( for more turns than the size of the buffer              )
+        THEN   
+        1 ms
         CURRENT-GEN @ 1 + CURRENT-GEN !
         KEY?
     UNTIL
@@ -478,8 +509,8 @@ INCLUDE     seeds.f
     CLOSE-TEST-FILE
 ;
 
-
-: GRID-SIZE-INVESTIGATION 
+( for investigating the affects size of grid has on a starting random 50x50 pattern )
+: GRID-SIZE-INVESTIGATION ( -- )
     TIME&DATE DROP DROP DROP 60 * + 60 * + START-TIME !     ( Records initial time /s )
     0 BUFFER !                                              ( initial setup with wrapping )
     SETUP-LIFE-SILENT
