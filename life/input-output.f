@@ -1,3 +1,6 @@
+{ File for outputting statistics        }
+{ change file name to fit your computer }
+
 variable TEST-FILE-ID                             { Create Variable to hold file id handle }
 
 
@@ -75,13 +78,7 @@ variable TEST-FILE-ID                             { Create Variable to hold file
     CURRENT-GEN @ (.) TEST-FILE-ID @ write-file drop            ( writes the current generation )
     s" ," TEST-FILE-ID @ write-file drop              
 
-    0
-    GRID-Y @ 0 DO
-        GRID-X @ 0 DO
-            I GRID-x @ * J + ARR-CELLS @ + c@                   ( finds the value of the cell )
-            +                                                   ( adds it to the total )
-        LOOP
-    LOOP
+    ALIVE-CELLS @
     
     dup dup dup
 
